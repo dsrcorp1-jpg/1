@@ -62,6 +62,13 @@ jobs:
       - name: 의존성 설치
         run: pip install openpyxl requests pandas --quiet
 
+      - name: fetch_market_data.py 존재 확인
+        run: |
+          if [ ! -f reports/fetch_market_data.py ]; then
+            echo "fetch_market_data.py 없음 — 워크플로우 실행 불가"
+            exit 1
+          fi
+
       - name: 업데이트 대상 연월 결정
         id: set-date
         run: |
@@ -85,59 +92,18 @@ jobs:
       - name: reports 디렉터리 생성
         run: mkdir -p reports
 
-      - name: 시장 지표 CSV 업데이트
+      - name: 시장 지표 수집 (fetch_market_data.py)
         env:
           REPORT_YEAR:  ${{ steps.set-date.outputs.report_year }}
           REPORT_MONTH: ${{ steps.set-date.outputs.report_month }}
+          EIA_API_KEY:    ${{ secrets.EIA_API_KEY }}
+          BOK_API_KEY:    ${{ secrets.BOK_API_KEY }}
+          ICIS_API_KEY:   ${{ secrets.ICIS_API_KEY }}
+          PLATTS_API_KEY: ${{ secrets.PLATTS_API_KEY }}
         run: |
-          python - <<'EOF'
-          import os, csv, datetime, pathlib
-
-          year  = int(os.environ["REPORT_YEAR"])
-          month = int(os.environ["REPORT_MONTH"])
-          label = f"{str(year)[2:]}-{month:02d}"
-          csv_path = pathlib.Path("reports/market_data.csv")
-
-          # 기존 CSV 로드 또는 신규 생성
-          rows = []
-          fieldnames = ["label","year","month","pp_homo","pp_copo","hdpe","ldpe","lldpe",
-                        "naphtha","brent","usdkrw","pp_nap_spread","pp_krw","updated_at"]
-          if csv_path.exists():
-              with open(csv_path, newline="", encoding="utf-8") as f:
-                  reader = csv.DictReader(f)
-                  rows = list(reader)
-
-          # 해당 월이 이미 존재하면 스킵 (덮어쓰지 않음 — 실제 API 연동 전까지)
-          existing = [r for r in rows if r["label"] == label]
-          if existing:
-              print(f"{label} 데이터 이미 존재 — 수동 확인 후 갱신하세요.")
-          else:
-              # ── 여기에 실제 가격 API 호출 로직을 추가합니다 ──
-              # 현재는 플레이스홀더 (ICIS API 계약 후 교체)
-              new_row = {
-                  "label":          label,
-                  "year":           year,
-                  "month":          month,
-                  "pp_homo":        "",   # TODO: ICIS API
-                  "pp_copo":        "",
-                  "hdpe":           "",
-                  "ldpe":           "",
-                  "lldpe":          "",
-                  "naphtha":        "",   # TODO: Platts API
-                  "brent":          "",   # TODO: EIA/Bloomberg
-                  "usdkrw":         "",   # TODO: 한국은행 API
-                  "pp_nap_spread":  "",
-                  "pp_krw":         "",
-                  "updated_at":     datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-              }
-              rows.append(new_row)
-              with open(csv_path, "w", newline="", encoding="utf-8") as f:
-                  writer = csv.DictWriter(f, fieldnames=fieldnames)
-                  writer.writeheader()
-                  writer.writerows(rows)
-              print(f"{label} 신규 행 추가 완료 (단가 수동 입력 필요)")
-
-          EOF
+          python reports/fetch_market_data.py \
+            --year  "$REPORT_YEAR" \
+            --month "$REPORT_MONTH"
 
       - name: CSV 결과 업로드 (아티팩트)
         uses: actions/upload-artifact@v4

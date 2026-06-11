@@ -150,7 +150,7 @@
     <span>📅 기준: 2019~2025년 월간 데이터</span>
     <span>🆕 v3 — 공급사 단가 입력 · 오퍼 비교표 추가</span>
     <span>🌏 아시아 CFR / 한국 시장</span>
-    <span>🏭 PP Homo · PP Copo · HDPE · LDPE · LLDPE</span>
+    <span>🏭 PP Homo · HDPE</span>
   </div>
 </header>
 
@@ -479,7 +479,7 @@
       <div class="timeline">
         <div class="tl-item"><div class="tl-dot green"></div><div class="tl-date">1~2월 (춘절)</div><div class="tl-title">중국 재고 축적 → 가격 강세</div><div class="tl-desc">춘절 前 2~3주 구매 집중. 구매팀 최대 의사결정 시점.</div></div>
         <div class="tl-item"><div class="tl-dot orange"></div><div class="tl-date">3~4월 (봄 TA)</div><div class="tl-title">아시아 크래커 정기보수 집중</div><div class="tl-desc">한국·일본·대만 동시 보수. 에틸렌 스프레드 확대.</div></div>
-        <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">5~6월</div><div class="tl-title">농업용 필름 수요 피크</div><div class="tl-desc">동남아·인도 농업 시즌. LLDPE·LDPE 필름 수요 증가.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">5~6월</div><div class="tl-title">농업용 필름 수요 피크</div><div class="tl-desc">동남아·인도 농업 시즌. PE 필름 수요 증가.</div></div>
         <div class="tl-item"><div class="tl-dot orange"></div><div class="tl-date">9~10월 (가을 TA)</div><div class="tl-title">2차 정기보수 + 국경절 재고</div><div class="tl-desc">공급 타이트 + 수요 강세 동시 발생. 가격 급등 주의.</div></div>
         <div class="tl-item"><div class="tl-dot green"></div><div class="tl-date">11~12월 (성수기)</div><div class="tl-title">연말 포장재 성수기</div><div class="tl-desc">전자상거래 급증. PP·PE 가격 동반 강세. 내년 계약 협상 시작.</div></div>
       </div>
@@ -513,78 +513,51 @@
         <tr>
           <th>공급사</th>
           <th>구분</th>
-          <th>PP Homo<br><small style="font-weight:400;opacity:.8">ICIS 기준: $1,010</small></th>
-          <th>PP Copo<br><small style="font-weight:400;opacity:.8">ICIS 기준: $1,070</small></th>
-          <th>HDPE<br><small style="font-weight:400;opacity:.8">ICIS 기준: $990</small></th>
-          <th>LDPE<br><small style="font-weight:400;opacity:.8">ICIS 기준: $1,060</small></th>
-          <th>LLDPE<br><small style="font-weight:400;opacity:.8">ICIS 기준: $970</small></th>
+          <th>PP Homo (Raffia)<br><small style="font-weight:400;opacity:.8">Platts CFR FE Asia: $1,200</small></th>
+          <th>HDPE<br><small style="font-weight:400;opacity:.8">ICIS CFR Asia: $990</small></th>
           <th>비고</th>
         </tr>
       </thead>
       <tbody>
         <tr style="background:#eaf3fb;">
-          <td colspan="2" style="font-weight:700;color:var(--primary);">ICIS 기준가 (USD/MT)</td>
-          <td style="font-weight:700;color:var(--accent);">$1,010</td>
-          <td style="font-weight:700;color:var(--accent);">$1,070</td>
+          <td colspan="2" style="font-weight:700;color:var(--primary);">Platts/ICIS 기준가 (USD/MT)</td>
+          <td style="font-weight:700;color:var(--accent);">$1,200</td>
           <td style="font-weight:700;color:var(--accent);">$990</td>
-          <td style="font-weight:700;color:var(--accent);">$1,060</td>
-          <td style="font-weight:700;color:var(--accent);">$970</td>
           <td style="font-weight:700;color:var(--accent);">기준</td>
         </tr>
         <tr><td><strong>LG화학</strong></td><td>국내</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>롯데케미칼</strong></td><td>국내</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>한화솔루션</strong></td><td>국내</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>SABIC</strong></td><td>중동</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>Borouge</strong></td><td>중동</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>QAPCO</strong></td><td>중동</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
         <tr><td><strong>PTT GC</strong></td><td>동남아</td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1010)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1070)"></td>
+          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1200)"></td>
           <td contenteditable="true" class="input-cell" oninput="calcDiff(this,990)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,1060)"></td>
-          <td contenteditable="true" class="input-cell" oninput="calcDiff(this,970)"></td>
           <td contenteditable="true" class="input-cell"></td>
         </tr>
       </tbody>
@@ -642,7 +615,7 @@
       <tbody>
         <tr>
           <td><strong>LG화학</strong></td><td>한국</td>
-          <td>PP Homo, PP Copo, HDPE</td>
+          <td>PP Homo, HDPE</td>
           <td><span class="badge badge-med">+$20~40</span></td>
           <td>T/T 30일</td>
           <td>20톤</td>
@@ -651,7 +624,7 @@
         </tr>
         <tr>
           <td><strong>롯데케미칼</strong></td><td>한국</td>
-          <td>PP Homo, HDPE, LLDPE</td>
+          <td>PP Homo, HDPE</td>
           <td><span class="badge badge-med">+$15~35</span></td>
           <td>T/T 30일</td>
           <td>20톤</td>
@@ -660,16 +633,16 @@
         </tr>
         <tr>
           <td><strong>한화솔루션</strong></td><td>한국</td>
-          <td>LDPE, LLDPE, HDPE</td>
+          <td>HDPE</td>
           <td><span class="badge badge-med">+$10~30</span></td>
           <td>T/T 30일</td>
           <td>20톤</td>
           <td>1~2주</td>
-          <td>LDPE 전문성 강함. PE 특화 공급사.</td>
+          <td>PE 특화 공급사.</td>
         </tr>
         <tr>
           <td><strong>SABIC</strong></td><td>사우디</td>
-          <td>PP Homo, HDPE, LLDPE</td>
+          <td>PP Homo, HDPE</td>
           <td><span class="badge badge-low">±$0~20</span></td>
           <td>L/C 또는 T/T</td>
           <td>100톤 (FCL)</td>
@@ -678,7 +651,7 @@
         </tr>
         <tr>
           <td><strong>Borouge</strong></td><td>UAE</td>
-          <td>PP Homo, PP Copo, HDPE</td>
+          <td>PP Homo, HDPE</td>
           <td><span class="badge badge-low">±$0~15</span></td>
           <td>L/C 또는 T/T</td>
           <td>100톤 (FCL)</td>
@@ -687,7 +660,7 @@
         </tr>
         <tr>
           <td><strong>QAPCO</strong></td><td>카타르</td>
-          <td>LDPE, LLDPE</td>
+          <td>HDPE</td>
           <td><span class="badge badge-low">−$10~+10</span></td>
           <td>L/C</td>
           <td>100톤 (FCL)</td>
@@ -696,7 +669,7 @@
         </tr>
         <tr>
           <td><strong>PTT GC</strong></td><td>태국</td>
-          <td>PP Homo, HDPE, LLDPE</td>
+          <td>PP Homo, HDPE</td>
           <td><span class="badge badge-low">−$5~+15</span></td>
           <td>T/T 또는 L/C</td>
           <td>20톤</td>
@@ -830,17 +803,6 @@ const ppHomo = [
   980,960,1010
 ];
 
-// PP Copo (USD/MT)
-const ppCopo = [
-  1060,1100,1140,1080,1040,1070,
-  1070,930,790,930,920,960,
-  1000,1110,1210,1290,1320,1380,
-  1440,1720,1790,1540,1370,1310,
-  1210,1120,1070,1110,1190,1120,
-  1050,1080,1100,1080,1030,1010,
-  1040,1020,1070
-];
-
 // HDPE (USD/MT)
 const hdpe = [
   970,1000,1040,990,955,975,
@@ -850,28 +812,6 @@ const hdpe = [
   1110,1020,975,1020,1090,1020,
   955,985,1005,988,940,920,
   950,930,990
-];
-
-// LDPE (USD/MT)
-const ldpe = [
-  1050,1090,1130,1080,1040,1060,
-  1060,930,790,920,920,960,
-  1000,1100,1200,1280,1300,1360,
-  1420,1700,1760,1520,1350,1290,
-  1190,1100,1055,1100,1170,1100,
-  1035,1065,1085,1068,1020,1000,
-  1030,1010,1060
-];
-
-// LLDPE C4 (USD/MT)
-const lldpe = [
-  950,980,1020,970,935,960,
-  960,825,685,820,815,855,
-  895,990,1090,1170,1200,1260,
-  1320,1590,1650,1410,1245,1185,
-  1085,995,950,995,1065,995,
-  930,960,980,963,915,895,
-  930,910,970
 ];
 
 // USD/KRW 환율
@@ -897,8 +837,8 @@ const ethHDPESpread = hdpe.map((v,i)=> v - ethylene[i]);
 
 // ── 색상 팔레트 ──
 const C = {
-  ppHomo:'#2980b9', ppCopo:'#1abc9c',
-  hdpe:'#e67e22', ldpe:'#e74c3c', lldpe:'#9b59b6',
+  ppHomo:'#2980b9',
+  hdpe:'#e67e22',
   brent:'#c0392b', naphtha:'#7f8c8d',
   spread1:'#2980b9', spread2:'#e67e22'
 };
@@ -1012,12 +952,9 @@ function buildResinChart(filter) {
   const datasets = [];
   if (filter !== 'pe') {
     datasets.push({label:'PP Homo', data: ppHomo, borderColor: C.ppHomo, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:2});
-    datasets.push({label:'PP Copo', data: ppCopo, borderColor: C.ppCopo, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[4,3]});
   }
   if (filter !== 'pp') {
     datasets.push({label:'HDPE', data: hdpe, borderColor: C.hdpe, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:2});
-    datasets.push({label:'LDPE', data: ldpe, borderColor: C.ldpe, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[4,3]});
-    datasets.push({label:'LLDPE C4', data: lldpe, borderColor: C.lldpe, backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[2,4]});
   }
   if(resinChart) resinChart.destroy();
   const ctx = document.getElementById('resinChart').getContext('2d');

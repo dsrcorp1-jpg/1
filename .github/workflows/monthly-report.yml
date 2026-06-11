@@ -1,0 +1,338 @@
+# =============================================================
+#  PP/PE 레진 월간 단가 리포트 자동 업데이트
+# -------------------------------------------------------------
+#  실행 시점:
+#   - 매월 1일 오전 9시 (KST = UTC+9 → UTC 00:00)
+#   - main 브랜치 push 시 reports/ 변경 감지
+#   - 수동 실행 (workflow_dispatch)
+#
+#  수행 작업:
+#   1. 시장 지표(유가·나프타·환율) CSV 업데이트
+#   2. pp_pe_resin_report_v2.html 가격 데이터 갱신
+#   3. Excel 단가추적 시트 신규 월 행 추가
+#   4. 월간 리포트 요약 Issue 자동 등록
+# =============================================================
+
+name: 월간 PP/PE 레진 단가 자동 업데이트
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"   # 매월 1일 00:00 UTC (한국시간 09:00)
+  push:
+    branches: [main]
+    paths:
+      - "reports/**"
+      - ".github/workflows/monthly-report.yml"
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "업데이트 연도 (기본: 현재 연도)"
+        required: false
+        default: ""
+      month:
+        description: "업데이트 월 (기본: 현재 월, 1~12)"
+        required: false
+        default: ""
+
+concurrency:
+  group: monthly-report
+  cancel-in-progress: false   # 월간 리포트는 중복 실행 방지
+
+jobs:
+  # ═══════════════════════════════════════════════════════════
+  #  JOB 1: 시장 데이터 수집 및 CSV 업데이트
+  # ═══════════════════════════════════════════════════════════
+  collect-market-data:
+    name: 시장 데이터 수집
+    runs-on: ubuntu-latest
+    outputs:
+      report_month: ${{ steps.set-date.outputs.report_month }}
+      report_year:  ${{ steps.set-date.outputs.report_year }}
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 의존성 설치
+        run: pip install openpyxl requests pandas --quiet
+
+      - name: 업데이트 대상 연월 결정
+        id: set-date
+        run: |
+          python - <<'EOF'
+          import os, datetime
+
+          inp_year  = "${{ github.event.inputs.year }}"
+          inp_month = "${{ github.event.inputs.month }}"
+          now = datetime.datetime.utcnow()
+
+          year  = int(inp_year)  if inp_year.strip()  else now.year
+          month = int(inp_month) if inp_month.strip() else now.month
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"report_year={year}\n")
+              f.write(f"report_month={month:02d}\n")
+
+          print(f"대상 연월: {year}-{month:02d}")
+          EOF
+
+      - name: reports 디렉터리 생성
+        run: mkdir -p reports
+
+      - name: 시장 지표 CSV 업데이트
+        env:
+          REPORT_YEAR:  ${{ steps.set-date.outputs.report_year }}
+          REPORT_MONTH: ${{ steps.set-date.outputs.report_month }}
+        run: |
+          python - <<'EOF'
+          import os, csv, datetime, pathlib
+
+          year  = int(os.environ["REPORT_YEAR"])
+          month = int(os.environ["REPORT_MONTH"])
+          label = f"{str(year)[2:]}-{month:02d}"
+          csv_path = pathlib.Path("reports/market_data.csv")
+
+          # 기존 CSV 로드 또는 신규 생성
+          rows = []
+          fieldnames = ["label","year","month","pp_homo","pp_copo","hdpe","ldpe","lldpe",
+                        "naphtha","brent","usdkrw","pp_nap_spread","pp_krw","updated_at"]
+          if csv_path.exists():
+              with open(csv_path, newline="", encoding="utf-8") as f:
+                  reader = csv.DictReader(f)
+                  rows = list(reader)
+
+          # 해당 월이 이미 존재하면 스킵 (덮어쓰지 않음 — 실제 API 연동 전까지)
+          existing = [r for r in rows if r["label"] == label]
+          if existing:
+              print(f"{label} 데이터 이미 존재 — 수동 확인 후 갱신하세요.")
+          else:
+              # ── 여기에 실제 가격 API 호출 로직을 추가합니다 ──
+              # 현재는 플레이스홀더 (ICIS API 계약 후 교체)
+              new_row = {
+                  "label":          label,
+                  "year":           year,
+                  "month":          month,
+                  "pp_homo":        "",   # TODO: ICIS API
+                  "pp_copo":        "",
+                  "hdpe":           "",
+                  "ldpe":           "",
+                  "lldpe":          "",
+                  "naphtha":        "",   # TODO: Platts API
+                  "brent":          "",   # TODO: EIA/Bloomberg
+                  "usdkrw":         "",   # TODO: 한국은행 API
+                  "pp_nap_spread":  "",
+                  "pp_krw":         "",
+                  "updated_at":     datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+              }
+              rows.append(new_row)
+              with open(csv_path, "w", newline="", encoding="utf-8") as f:
+                  writer = csv.DictWriter(f, fieldnames=fieldnames)
+                  writer.writeheader()
+                  writer.writerows(rows)
+              print(f"{label} 신규 행 추가 완료 (단가 수동 입력 필요)")
+
+          EOF
+
+      - name: CSV 결과 업로드 (아티팩트)
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-data-csv
+          path: reports/market_data.csv
+          retention-days: 90
+
+  # ═══════════════════════════════════════════════════════════
+  #  JOB 2: Excel 단가추적 시트 신규 월 행 추가
+  # ═══════════════════════════════════════════════════════════
+  update-excel:
+    name: Excel 단가추적 시트 업데이트
+    runs-on: ubuntu-latest
+    needs: collect-market-data
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 의존성 설치
+        run: pip install openpyxl --quiet
+
+      - name: CSV 아티팩트 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: market-data-csv
+          path: reports/
+
+      - name: Excel 신규 월 행 추가
+        env:
+          REPORT_YEAR:  ${{ needs.collect-market-data.outputs.report_year }}
+          REPORT_MONTH: ${{ needs.collect-market-data.outputs.report_month }}
+        run: |
+          python - <<'EOF'
+          import os, csv, pathlib
+          from openpyxl import load_workbook
+          from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+          year  = int(os.environ["REPORT_YEAR"])
+          month = int(os.environ["REPORT_MONTH"])
+          label = f"{str(year)[2:]}-{month:02d}"
+
+          xlsx_files = list(pathlib.Path(".").glob("*단가추적*.xlsx"))
+          if not xlsx_files:
+              print("Excel 파일 없음 — 건너뜀")
+              exit(0)
+
+          xlsx_path = xlsx_files[0]
+          print(f"Excel: {xlsx_path}")
+          wb = load_workbook(xlsx_path)
+          ws = wb["월간단가입력"]
+
+          # 마지막 데이터 행 탐색
+          last_row = 3
+          for row in ws.iter_rows(min_row=4):
+              if row[0].value:
+                  last_row = row[0].row
+
+          # 이미 해당 연월이 있으면 스킵
+          for row in ws.iter_rows(min_row=4, max_row=last_row):
+              if str(row[0].value) == str(year) and str(row[1].value).zfill(2) == f"{month:02d}":
+                  print(f"{label} 이미 존재 — 건너뜀")
+                  exit(0)
+
+          # CSV에서 해당 월 데이터 로드
+          csv_path = pathlib.Path("reports/market_data.csv")
+          new_data = {}
+          if csv_path.exists():
+              with open(csv_path, newline="", encoding="utf-8") as f:
+                  for row in csv.DictReader(f):
+                      if row["label"] == label:
+                          new_data = row
+                          break
+
+          # 신규 행 추가
+          r = last_row + 1
+          s = Side(style="thin", color="D0DAE8")
+          bdr = Border(left=s, right=s, top=s, bottom=s)
+
+          def set_c(col, val, fmt=None, color="0000FF"):
+              c = ws.cell(row=r, column=col, value=val if val else None)
+              c.font = Font(name="Arial", size=10, color=color)
+              c.fill = PatternFill("solid", fgColor="EAF3FB" if r % 2 == 0 else "FFFFFF")
+              c.border = bdr
+              c.alignment = Alignment(horizontal="center", vertical="center")
+              if fmt and val:
+                  c.number_format = fmt
+
+          set_c(1, year,  "#,##0")
+          set_c(2, month, "00")
+          # 단가 값 (CSV에서 로드, 없으면 빈칸 — 수동 입력 필요)
+          for col, key in [(3,"pp_homo"),(4,"pp_copo"),(5,"hdpe"),(6,"ldpe"),(7,"lldpe"),
+                           (8,"naphtha"),(9,"brent"),(10,"usdkrw")]:
+              val = float(new_data[key]) if new_data.get(key) else None
+              set_c(col, val, "#,##0")
+
+          # 수식
+          for col, formula in [
+              (11, f"=C{r}-H{r}"),
+              (12, f"=C{r}*J{r}"),
+              (13, f"=C{r}-C{r-1}"),
+          ]:
+              c = ws.cell(row=r, column=col, value=formula)
+              c.font = Font(name="Arial", size=10, color="000000")
+              c.fill = PatternFill("solid", fgColor="EAF3FB" if r % 2 == 0 else "FFFFFF")
+              c.border = bdr
+              c.alignment = Alignment(horizontal="center", vertical="center")
+              c.number_format = "#,##0"
+
+          ws.cell(row=r, column=14).value = "자동 추가"
+
+          wb.save(xlsx_path)
+          print(f"{label} 행 추가 완료 → {xlsx_path}")
+          EOF
+
+      - name: 변경된 파일 커밋
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: |
+            [자동] ${{ needs.collect-market-data.outputs.report_year }}-${{ needs.collect-market-data.outputs.report_month }} 월간 단가 시트 업데이트
+          file_pattern: "reports/*.csv *단가추적*.xlsx"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+  # ═══════════════════════════════════════════════════════════
+  #  JOB 3: 월간 리포트 요약 Issue 자동 등록
+  # ═══════════════════════════════════════════════════════════
+  create-monthly-issue:
+    name: 월간 리포트 Issue 등록
+    runs-on: ubuntu-latest
+    needs:
+      - collect-market-data
+      - update-excel
+    if: always()   # Excel 업데이트 실패해도 Issue는 생성
+
+    steps:
+      - name: 월간 단가 검토 Issue 생성
+        uses: actions/github-script@v7
+        env:
+          REPORT_YEAR:  ${{ needs.collect-market-data.outputs.report_year }}
+          REPORT_MONTH: ${{ needs.collect-market-data.outputs.report_month }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const year  = process.env.REPORT_YEAR;
+            const month = process.env.REPORT_MONTH;
+            const title = `[월간리포트] ${year}년 ${month}월 PP/PE 레진 단가 검토`;
+
+            // 동일 제목 이슈 중복 방지
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              state: "open",
+            });
+            if (existing.data.some(i => i.title === title)) {
+              console.log("이미 존재하는 이슈 — 건너뜀");
+              return;
+            }
+
+            const body = `## ${year}년 ${month}월 PP/PE 레진 단가 월간 검토
+
+            > 이 이슈는 GitHub Actions에 의해 매월 1일 자동 생성됩니다.
+
+            ### 체크리스트
+            - [ ] ICIS 기준가 확인 및 CSV 업데이트 (reports/market_data.csv)
+            - [ ] Excel 단가추적 시트 실제 계약 단가 입력
+            - [ ] 전월 대비 변동률 분석
+            - [ ] 공급사별 오퍼 비교 업데이트
+            - [ ] 단가 시뮬레이터 가정 최신화 (유가·환율·나프타 배율)
+            - [ ] pp_pe_resin_report_v2.html KPI 수치 업데이트
+            - [ ] 구매팀 주간 회의 공유
+
+            ### 참고 지표 (직전 데이터 기준)
+            | 항목 | 값 |
+            |------|-----|
+            | 업데이트 트리거 | ${context.eventName} |
+            | 워크플로우 실행 | [#${context.runNumber}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) |
+
+            ### 주요 가격 참고 소스
+            - [ICIS](https://www.icis.com) — PP/PE 아시아 CFR 주간 가격
+            - [Platts](https://www.spglobal.com/commodityinsights) — 나프타 CFR Japan
+            - [한국석유화학협회](https://www.kpia.or.kr) — 국내 수급 통계
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              title,
+              body,
+              labels: [],
+            });
+            console.log(`이슈 생성 완료: ${title}`);

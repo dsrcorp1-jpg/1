@@ -767,7 +767,8 @@ const months = [
   '22-01','22-03','22-05','22-07','22-09','22-11',
   '23-01','23-03','23-05','23-07','23-09','23-11',
   '24-01','24-03','24-05','24-07','24-09','24-11',
-  '25-01','25-03','25-05'
+  '25-01','25-03','25-05','25-07','25-09','25-11',
+  '26-01','26-03','26-05'
 ];
 
 // Brent 유가 (USD/배럴)
@@ -778,7 +779,9 @@ const brent = [
   88,110,118,100,88,86,
   82,78,75,80,90,82,
   78,82,85,82,74,72,
-  76,72,68
+  76,72,68,
+  72,68,68,
+  72,76,72
 ];
 
 // 나프타 CFR Japan (USD/MT)
@@ -789,7 +792,9 @@ const naphtha = [
   760,960,1020,860,750,730,
   700,655,625,660,740,680,
   645,670,685,665,620,600,
-  630,610,590
+  630,610,590,
+  575,565,550,
+  545,600,640
 ];
 
 // PP Homo (USD/MT CFR Asia)
@@ -800,7 +805,9 @@ const ppHomo = [
   1380,1650,1720,1480,1310,1250,
   1150,1060,1010,1050,1130,1060,
   990,1020,1040,1020,970,950,
-  980,960,1010
+  980,960,1010,
+  995,970,945,
+  940,1050,1200
 ];
 
 // HDPE (USD/MT)
@@ -811,7 +818,9 @@ const hdpe = [
   1340,1610,1680,1440,1270,1210,
   1110,1020,975,1020,1090,1020,
   955,985,1005,988,940,920,
-  950,930,990
+  950,930,990,
+  985,955,925,
+  920,1020,1170
 ];
 
 // USD/KRW 환율
@@ -822,7 +831,9 @@ const usdkrw = [
   1200,1235,1268,1320,1430,1410,
   1250,1310,1280,1290,1350,1310,
   1320,1340,1365,1380,1330,1355,
-  1430,1460,1380
+  1430,1460,1380,
+  1355,1350,1375,
+  1455,1430,1390
 ];
 
 // PP Homo 원화 환산가 (원/MT)
@@ -848,7 +859,8 @@ const eventAnnotations = {
   covid: { type:'line', xMin:'20-03', xMax:'20-03', borderColor:'rgba(231,76,60,0.6)', borderWidth:2, borderDash:[5,5], label:{content:'코로나 충격', enabled:true, position:'start', font:{size:10}, color:'#c0392b'} },
   texas: { type:'line', xMin:'21-03', xMax:'21-03', borderColor:'rgba(241,196,15,0.8)', borderWidth:2, borderDash:[5,5], label:{content:'텍사스 한파', enabled:true, position:'start', font:{size:10}} },
   ukraine: { type:'line', xMin:'22-03', xMax:'22-03', borderColor:'rgba(192,57,43,0.8)', borderWidth:2, borderDash:[5,5], label:{content:'러·우 전쟁', enabled:true, position:'start', font:{size:10}, color:'#c0392b'} },
-  china: { type:'box', xMin:'23-01', xMax:'24-11', backgroundColor:'rgba(52,152,219,0.07)', borderColor:'rgba(52,152,219,0.3)', borderWidth:1, label:{content:'중국 대규모 증설', enabled:true, position:'start', font:{size:10}, color:'#2980b9'} }
+  china: { type:'box', xMin:'23-01', xMax:'24-11', backgroundColor:'rgba(52,152,219,0.07)', borderColor:'rgba(52,152,219,0.3)', borderWidth:1, label:{content:'중국 대규모 증설', enabled:true, position:'start', font:{size:10}, color:'#2980b9'} },
+  surge26: { type:'line', xMin:'26-03', xMax:'26-03', borderColor:'rgba(155,89,182,0.8)', borderWidth:2, borderDash:[5,5], label:{content:'26년 급등 (Platts $1,200)', enabled:true, position:'start', font:{size:10}, color:'#8e44ad'} }
 };
 
 // ──────────────────────────────────────

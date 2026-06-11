@@ -164,6 +164,7 @@
   <a href="#contract-price">⑦ 계약 단가 입력</a>
   <a href="#supplier-offer">⑧ 공급사 오퍼 비교</a>
   <a href="#methodology">⑨ 단가 산정 방법론</a>
+  <a href="#actual-price">⑩ 실제 납품 단가 비교</a>
 </nav>
 
 <main>
@@ -1222,6 +1223,195 @@ function buildLegend(datasets, id) {
       scales:{
         x:{ ticks:{ font:{size:10}, maxRotation:45 }, grid:{ color:'rgba(0,0,0,.05)' } },
         y:{ min:-.2, max:1.05, ticks:{ font:{size:10} }, title:{ display:true, text:'상관계수 r', font:{size:11} }, grid:{ color:'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+})();
+</script>
+
+<!-- ══════════ §10 실제 납품 단가 비교 ══════════ -->
+<section id="actual-price">
+  <h2>⑩ 실제 납품 단가 vs 시장 공시가 비교</h2>
+  <p style="color:#666;font-size:14px;margin-bottom:20px;">
+    2020년 9월 ~ 2026년 6월 실제 구매 단가(중국 CFR) vs ICIS 시장 공시가 vs 나프타. 양수=공시가 대비 고가 매입, 음수=저가 매입.
+  </p>
+
+  <!-- KPI Row -->
+  <div class="kpi-row" id="actual-kpis" style="margin-bottom:32px;"></div>
+
+  <!-- Chart A: PP 비교 -->
+  <div class="card" style="margin-bottom:28px;">
+    <h3 style="margin-top:0">PP 단가 비교 — 실제 납품가 vs ICIS 공시가 vs 나프타 (USD/MT)</h3>
+    <div style="position:relative;height:320px"><canvas id="chartPPCompare"></canvas></div>
+  </div>
+
+  <!-- Chart B: PE 비교 -->
+  <div class="card" style="margin-bottom:28px;">
+    <h3 style="margin-top:0">PE 단가 비교 — 실제 납품가 vs ICIS 공시가 vs 나프타 (USD/MT)</h3>
+    <div style="position:relative;height:320px"><canvas id="chartPECompare"></canvas></div>
+  </div>
+
+  <!-- Chart C: Premium/Discount -->
+  <div class="card" style="margin-bottom:28px;">
+    <h3 style="margin-top:0">월별 프리미엄/디스카운트 — 실제 납품가 − ICIS 공시가 (USD/MT)</h3>
+    <p style="color:#888;font-size:12px;margin:-8px 0 12px">양수(빨강)=공시가 초과 매입, 음수(파랑)=공시가 대비 절감</p>
+    <div style="position:relative;height:280px"><canvas id="chartPremium"></canvas></div>
+  </div>
+
+  <!-- Chart D: 2026 동남아 vs 중국 -->
+  <div class="card">
+    <h3 style="margin-top:0">2026년 동남아 vs 중국 단가 비교 (USD/MT CFR)</h3>
+    <p style="color:#888;font-size:12px;margin:-8px 0 12px">2026년 1월부터 동남아 시장 데이터 확보. 3월 이후 동남아 가격 급등 확인.</p>
+    <div style="position:relative;height:280px"><canvas id="chart2026Sea"></canvas></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  // ── 실제 납품 데이터 (666.xls 월평균, 2020-09 ~ 2026-06) ──
+  const labels = [
+    '20-09','20-10','20-11','20-12',
+    '21-01','21-02','21-03','21-04','21-05','21-06','21-07','21-08','21-09','21-10','21-11','21-12',
+    '22-01','22-02','22-03','22-04','22-05','22-06','22-07','22-08','22-09','22-10','22-11','22-12',
+    '23-01','23-02','23-03','23-04','23-05','23-06','23-07','23-08','23-09','23-10','23-11','23-12',
+    '24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12',
+    '25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12',
+    '26-01','26-02','26-03','26-04','26-05','26-06'
+  ];
+
+  const peCn = [950,940,950,988, 980,1025,1210,1164,1080,1030,1056,1065,1086,1177,1175,1174, 1158,1208,1262,1250,1180,1115,1085,968,945,950,904,938, 958,1003,1004,970,958,913,920,966,970,963,912,900, 935,960,965,965,985,990,983,930,920,928,890,913, 908,906,905,894,883,885,890,890,890,882,868,850, 843,849,1034,1249,1216,1135];
+  const ppCn = [941,965,1048,1094, 1060,1103,1253,1230,1130,1083,1102,1119,1141,1260,1176,1106, 1095,1155,1195,1178,1148,1081,1030,933,946,950,881,903, 935,950,940,916,883,815,823,842,883,866,861,868, 864,871,880,898,920,932,920,898,868,891,925,882, 875,873,875,863,858,865,879,865,845,820,770,756, 790,825,1100,1234,1226,1205];
+
+  // PE(동남아)·PP(동남아) — 2026-01부터 존재
+  const peSeaAll  = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, 843,869,1296,1482,1393,1310];
+  const ppSeaAll  = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, 811,854,1184,1327,1305,1220];
+
+  // ICIS 공시가 (월별 보간, USD/MT CFR Asia)
+  const icisHDPE = [835,853,870,890, 910,960,1010,1060,1110,1150,1190,1205,1220,1250,1280,1310, 1340,1475,1610,1645,1680,1560,1440,1355,1270,1240,1210,1160, 1110,1065,1020,998,975,998,1020,1055,1090,1055,1020,988, 955,970,985,995,1005,997,988,964,940,930,920,935, 950,940,930,960,990,990,985,970,955,940,925,915, 915,930,1020,1120,1170,1150];
+  const icisPPHomo = [860,880,900,920, 940,995,1050,1100,1150,1190,1230,1245,1260,1290,1320,1350, 1380,1515,1650,1685,1720,1600,1480,1395,1310,1280,1250,1200, 1150,1105,1060,1035,1010,1030,1050,1090,1130,1095,1060,1025, 990,1005,1020,1030,1040,1030,1020,995,970,960,950,965, 980,970,960,985,1010,1010,1000,990,975,960,945,935, 935,950,1050,1150,1200,1180];
+  const naphtha   = [380,370,410,460, 475,510,530,565,580,595,640,625,660,710,700,675, 760,840,960,960,990,1020,860,830,750,780,730,680, 700,685,655,670,625,600,660,685,740,710,680,640, 645,655,670,695,680,670,665,640,620,625,605,595, 630,620,610,580,565,575,575,570,565,560,550,545, 545,555,600,635,640,630];
+
+  // 프리미엄/디스카운트 계산
+  const ppPrem = ppCn.map((v,i) => +(v - icisPPHomo[i]).toFixed(1));
+  const pePrem = peCn.map((v,i) => +(v - icisHDPE[i]).toFixed(1));
+
+  // ── KPI 계산 ──
+  const ppPremAvg = (ppPrem.reduce((a,b)=>a+b,0)/ppPrem.length).toFixed(0);
+  const pePremAvg = (pePrem.reduce((a,b)=>a+b,0)/pePrem.length).toFixed(0);
+  const ppPremRecent = ppPrem.slice(-6).reduce((a,b)=>a+b,0)/6;
+  const pePremRecent = pePrem.slice(-6).reduce((a,b)=>a+b,0)/6;
+  const latestPPCn = ppCn[ppCn.length-1], latestPECn = peCn[peCn.length-1];
+  const latestIcisPP = icisPPHomo[icisPPHomo.length-1], latestIcisPE = icisHDPE[icisHDPE.length-1];
+
+  const kpiEl = document.getElementById('actual-kpis');
+  function kpiCard(label, value, note, up) {
+    const cls = up ? 'up' : 'down';
+    return `<div class="kpi-card"><div class="label">${label}</div><div class="value">${value}</div><div class="note ${cls}">${note}</div></div>`;
+  }
+  kpiEl.innerHTML =
+    kpiCard('PP 전기간 평균 프리미엄', (ppPremAvg>0?'+':'')+ppPremAvg+'$/MT', ppPremAvg>0?'▲ 공시가 초과 매입':'▼ 공시가 대비 절감', ppPremAvg>0) +
+    kpiCard('PE 전기간 평균 프리미엄', (pePremAvg>0?'+':'')+pePremAvg+'$/MT', pePremAvg>0?'▲ 공시가 초과 매입':'▼ 공시가 대비 절감', pePremAvg>0) +
+    kpiCard('PP 최근 납품가 (중국)', '$'+latestPPCn, 'ICIS $'+latestIcisPP+' 대비 '+(latestPPCn-latestIcisPP>0?'+':'')+(latestPPCn-latestIcisPP)+'$/MT', latestPPCn>latestIcisPP) +
+    kpiCard('PE 최근 납품가 (중국)', '$'+latestPECn, 'ICIS $'+latestIcisPE+' 대비 '+(latestPECn-latestIcisPE>0?'+':'')+(latestPECn-latestIcisPE)+'$/MT', latestPECn>latestIcisPE);
+
+  const tick = { font:{size:10}, maxRotation:45 };
+  const grid = { color:'rgba(0,0,0,.05)' };
+
+  // ── Chart A: PP 비교 ──
+  new Chart(document.getElementById('chartPPCompare'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        { label:'PP 실제 납품가 (중국)', data:ppCn, borderColor:'#e74c3c', backgroundColor:'rgba(231,76,60,.08)', borderWidth:2, pointRadius:0, tension:.3 },
+        { label:'ICIS PP Homo 공시가', data:icisPPHomo, borderColor:'#3498db', backgroundColor:'rgba(52,152,219,.08)', borderWidth:1.5, borderDash:[5,4], pointRadius:0, tension:.3 },
+        { label:'나프타 CFR Japan', data:naphtha, borderColor:'#f39c12', backgroundColor:'transparent', borderWidth:1.5, borderDash:[3,3], pointRadius:0, tension:.3, yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{font:{size:11}} } },
+      scales:{
+        x:{ ticks:tick, grid },
+        y:{ position:'left', title:{display:true,text:'레진 (USD/MT)',font:{size:11}}, ticks:{font:{size:10}}, grid },
+        y2:{ position:'right', title:{display:true,text:'나프타 (USD/MT)',font:{size:11}}, ticks:{font:{size:10}}, grid:{drawOnChartArea:false} }
+      }
+    }
+  });
+
+  // ── Chart B: PE 비교 ──
+  new Chart(document.getElementById('chartPECompare'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        { label:'PE 실제 납품가 (중국)', data:peCn, borderColor:'#27ae60', backgroundColor:'rgba(39,174,96,.08)', borderWidth:2, pointRadius:0, tension:.3 },
+        { label:'ICIS HDPE 공시가', data:icisHDPE, borderColor:'#9b59b6', backgroundColor:'rgba(155,89,182,.08)', borderWidth:1.5, borderDash:[5,4], pointRadius:0, tension:.3 },
+        { label:'나프타 CFR Japan', data:naphtha, borderColor:'#f39c12', backgroundColor:'transparent', borderWidth:1.5, borderDash:[3,3], pointRadius:0, tension:.3, yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{font:{size:11}} } },
+      scales:{
+        x:{ ticks:tick, grid },
+        y:{ position:'left', title:{display:true,text:'레진 (USD/MT)',font:{size:11}}, ticks:{font:{size:10}}, grid },
+        y2:{ position:'right', title:{display:true,text:'나프타 (USD/MT)',font:{size:11}}, ticks:{font:{size:10}}, grid:{drawOnChartArea:false} }
+      }
+    }
+  });
+
+  // ── Chart C: 프리미엄/디스카운트 ──
+  new Chart(document.getElementById('chartPremium'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {
+          label:'PP 프리미엄 (실제−ICIS)',
+          data:ppPrem,
+          backgroundColor: ppPrem.map(v => v > 0 ? 'rgba(231,76,60,.7)' : 'rgba(52,152,219,.7)'),
+          borderWidth:0
+        },
+        {
+          label:'PE 프리미엄 (실제−ICIS)',
+          data:pePrem,
+          backgroundColor: pePrem.map(v => v > 0 ? 'rgba(192,57,43,.4)' : 'rgba(41,128,185,.4)'),
+          borderWidth:0
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{font:{size:11}} } },
+      scales:{
+        x:{ ticks:tick, grid },
+        y:{ title:{display:true,text:'프리미엄 (USD/MT)',font:{size:11}}, ticks:{font:{size:10}}, grid,
+          afterDataLimits(s){ const m=Math.max(Math.abs(s.min),Math.abs(s.max)); s.min=-m-50; s.max=m+50; }
+        }
+      }
+    }
+  });
+
+  // ── Chart D: 2026 동남아 vs 중국 ──
+  const labels2026 = ['26-01','26-02','26-03','26-04','26-05','26-06'];
+  new Chart(document.getElementById('chart2026Sea'), {
+    type:'bar',
+    data:{
+      labels: labels2026,
+      datasets:[
+        { label:'PE 중국', data:[843,849,1034,1249,1216,1135], backgroundColor:'rgba(39,174,96,.75)', borderWidth:0 },
+        { label:'PE 동남아', data:[843,869,1296,1482,1393,1310], backgroundColor:'rgba(39,174,96,.35)', borderWidth:0 },
+        { label:'PP 중국', data:[790,825,1100,1234,1226,1205], backgroundColor:'rgba(231,76,60,.75)', borderWidth:0 },
+        { label:'PP 동남아', data:[811,854,1184,1327,1305,1220], backgroundColor:'rgba(231,76,60,.35)', borderWidth:0 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{font:{size:11}} } },
+      scales:{
+        x:{ ticks:{font:{size:11}}, grid },
+        y:{ title:{display:true,text:'USD/MT CFR',font:{size:11}}, ticks:{font:{size:10}}, grid, min:700 }
       }
     }
   });

@@ -155,11 +155,13 @@
 
 <nav>
   <a href="#charts">① 가격 차트</a>
-  <a href="#correlation">② 유가 상관관계</a>
+  <a href="#fx">② 환율 영향</a>
+  <a href="#correlation">③ 유가 상관관계</a>
   <a href="#newsletters">③ 뉴스레터·소스</a>
-  <a href="#factors">④ 가격 영향 요인</a>
-  <a href="#events">⑤ 주요 이벤트</a>
-  <a href="#methodology">⑥ 단가 산정 방법론</a>
+  <a href="#newsletters">④ 뉴스레터·소스</a>
+  <a href="#factors">⑤ 가격 영향 요인</a>
+  <a href="#events">⑥ 주요 이벤트</a>
+  <a href="#methodology">⑦ 단가 산정 방법론</a>
 </nav>
 
 <main>
@@ -190,6 +192,11 @@
     <div class="label">PP−나프타 스프레드</div>
     <div class="value">$380</div>
     <div class="note flat">→ 정상 범위 유지</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">USD/KRW 환율</div>
+    <div class="value">1,380</div>
+    <div class="note up">▲ +25원 전월 대비</div>
   </div>
 </div>
 
@@ -234,10 +241,66 @@
   </div>
 </section>
 
-<!-- ══════════ 2. 유가 상관관계 ══════════ -->
-<section class="section" id="correlation">
+<!-- ══════════ 2. 환율 영향 ══════════ -->
+<section class="section" id="fx">
   <div class="section-header">
     <div class="section-num">2</div>
+    <h2>USD/KRW 환율과 PP / PE 레진 원화 환산 단가 영향 분석</h2>
+  </div>
+
+  <div class="alert alert-warn">
+    <span>💱</span>
+    <p><strong>핵심 포인트:</strong> 레진은 달러(USD)로 계약되므로 원화 약세(환율 상승) 시 실질 구매 원가가 올라갑니다. 유가가 안정돼도 환율 상승만으로 국내 단가가 5~10% 오를 수 있습니다.</p>
+  </div>
+
+  <!-- Chart 7: 환율 & PP 원화 환산가 추이 -->
+  <div class="chart-card">
+    <h3>💱 USD/KRW 환율 & PP Homo 원화 환산가 추이 (2019–2025)</h3>
+    <p class="sub">오른쪽 축: USD/KRW 환율 · 왼쪽 축: PP 원화 환산가 (원/MT)</p>
+    <div class="chart-wrap-tall">
+      <canvas id="fxResinChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart 8: 환율 상승 시 원가 충격 시뮬레이션 -->
+  <div class="chart-card">
+    <h3>📐 환율 시나리오별 PP Homo 원화 환산 단가 비교</h3>
+    <p class="sub">PP Homo $1,010/MT 기준 · 환율 구간별 원화 단가 및 전월 대비 증감</p>
+    <div class="chart-wrap">
+      <canvas id="fxScenarioChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart 9: 환율 vs PP 산점도 -->
+  <div class="chart-card">
+    <h3>🔴 USD/KRW 환율 vs PP Homo 원화 환산가 산점도</h3>
+    <p class="sub">2019–2025 월별 데이터 · 추세선 포함</p>
+    <div class="chart-wrap">
+      <canvas id="fxScatterChart"></canvas>
+    </div>
+    <p class="chart-annotation">* 환율 100원 상승 → PP 원화 단가 약 101,000원/MT 상승 (달러 단가 불변 기준)</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>환율 구간</th><th>PP $1,010 원화 환산</th><th>HDPE $990 원화 환산</th><th>전월(1,355원) 대비 증감</th><th>구매 전략</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1,200원</td><td>1,212,000원/MT</td><td>1,188,000원/MT</td><td class="down">▼ −156,550원 절감</td><td>스팟 비중 확대, 재고 최소화</td></tr>
+        <tr><td>1,300원</td><td>1,313,000원/MT</td><td>1,287,000원/MT</td><td class="down">▼ −55,550원 절감</td><td>계약 비중 유지</td></tr>
+        <tr><td><strong>1,380원 (현재)</strong></td><td><strong>1,393,800원/MT</strong></td><td><strong>1,366,200원/MT</strong></td><td class="flat">→ 기준</td><td>혼합 전략 유지</td></tr>
+        <tr><td>1,450원</td><td>1,464,500원/MT</td><td>1,435,500원/MT</td><td class="up">▲ +70,700원 추가 부담</td><td>장기 계약 비중 확대, 환헤지 검토</td></tr>
+        <tr><td>1,500원</td><td>1,515,000원/MT</td><td>1,485,000원/MT</td><td class="up">▲ +121,200원 추가 부담</td><td>환헤지 필수, 판가 연동 협의</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ 3. 유가 상관관계 ══════════ -->
+<section class="section" id="correlation">
+  <div class="section-header">
+    <div class="section-num">3</div>
     <h2>유가 변동성 vs 레진 단가 상관관계 분석</h2>
   </div>
 
@@ -294,7 +357,7 @@
 <!-- ══════════ 3. 뉴스레터 ══════════ -->
 <section class="section" id="newsletters">
   <div class="section-header">
-    <div class="section-num">3</div>
+    <div class="section-num">4</div>
     <h2>매일 참고해야 할 뉴스레터 & 단가 정보 소스</h2>
   </div>
   <div class="alert alert-info">
@@ -314,7 +377,7 @@
 <!-- ══════════ 4. 가격 영향 요인 ══════════ -->
 <section class="section" id="factors">
   <div class="section-header">
-    <div class="section-num">4</div>
+    <div class="section-num">5</div>
     <h2>PP / PE 레진 가격 영향 요인</h2>
   </div>
   <div class="two-col">
@@ -354,7 +417,7 @@
 <!-- ══════════ 5. 이벤트 ══════════ -->
 <section class="section" id="events">
   <div class="section-header">
-    <div class="section-num">5</div>
+    <div class="section-num">6</div>
     <h2>주요 이벤트 타임라인</h2>
   </div>
   <div class="two-col">
@@ -384,7 +447,7 @@
 <!-- ══════════ 6. 단가 산정 방법론 ══════════ -->
 <section class="section" id="methodology">
   <div class="section-header">
-    <div class="section-num">6</div>
+    <div class="section-num">7</div>
     <h2>PP / PE 레진 단가 산정 방법론</h2>
   </div>
   <div class="alert alert-info">
@@ -503,6 +566,20 @@ const lldpe = [
   930,910,970
 ];
 
+// USD/KRW 환율
+const usdkrw = [
+  1120,1135,1178,1180,1195,1175,
+  1160,1225,1240,1185,1130,1100,
+  1096,1126,1118,1148,1178,1190,
+  1200,1235,1268,1320,1430,1410,
+  1250,1310,1280,1290,1350,1310,
+  1320,1340,1365,1380,1330,1355,
+  1430,1460,1380
+];
+
+// PP Homo 원화 환산가 (원/MT)
+const ppHomoKRW = ppHomo.map((v,i) => Math.round(v * usdkrw[i]));
+
 // PP−나프타 스프레드
 const ppNapSpread = ppHomo.map((v,i)=> v - naphtha[i]);
 // 에틸렌 근사 (나프타+200~250)
@@ -525,6 +602,99 @@ const eventAnnotations = {
   ukraine: { type:'line', xMin:'22-03', xMax:'22-03', borderColor:'rgba(192,57,43,0.8)', borderWidth:2, borderDash:[5,5], label:{content:'러·우 전쟁', enabled:true, position:'start', font:{size:10}, color:'#c0392b'} },
   china: { type:'box', xMin:'23-01', xMax:'24-11', backgroundColor:'rgba(52,152,219,0.07)', borderColor:'rgba(52,152,219,0.3)', borderWidth:1, label:{content:'중국 대규모 증설', enabled:true, position:'start', font:{size:10}, color:'#2980b9'} }
 };
+
+// ──────────────────────────────────────
+// Chart 7: 환율 & PP 원화 환산가 추이
+// ──────────────────────────────────────
+(function(){
+  const ctx = document.getElementById('fxResinChart').getContext('2d');
+  new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: months,
+      datasets:[
+        { label:'PP Homo 원화 환산가 (좌축)', data: ppHomoKRW, borderColor:'#2980b9', backgroundColor:'rgba(41,128,185,0.07)', fill:true, tension:.3, pointRadius:0, borderWidth:2, yAxisID:'y' },
+        { label:'USD/KRW 환율 (우축)', data: usdkrw, borderColor:'#e74c3c', backgroundColor:'transparent', tension:.3, pointRadius:0, borderWidth:2, borderDash:[4,3], yAxisID:'y2' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'top', labels:{ boxWidth:14, font:{size:11} } },
+        annotation:{ annotations: eventAnnotations }
+      },
+      scales:{
+        x:{ ticks:{ font:{size:10}, maxRotation:45 }, grid:{ color:'rgba(0,0,0,.05)' } },
+        y:{ ticks:{ font:{size:10}, callback: v => (v/10000).toFixed(0)+'만' }, title:{ display:true, text:'원/MT', font:{size:11} }, position:'left', grid:{ color:'rgba(0,0,0,.05)' } },
+        y2:{ min:1050, max:1550, ticks:{ font:{size:10} }, title:{ display:true, text:'USD/KRW (원)', font:{size:11} }, position:'right', grid:{ drawOnChartArea:false } }
+      }
+    }
+  });
+})();
+
+// ──────────────────────────────────────
+// Chart 8: 환율 시나리오 바 차트
+// ──────────────────────────────────────
+(function(){
+  const scenarios = ['1,200원','1,300원','1,380원\n(현재)','1,450원','1,500원'];
+  const rates = [1200, 1300, 1380, 1450, 1500];
+  const ppBase = 1010, hdpeBase = 990;
+  const ppVals  = rates.map(r => Math.round(ppBase  * r / 1000) * 1000);
+  const hdpeVals= rates.map(r => Math.round(hdpeBase * r / 1000) * 1000);
+  const colors  = rates.map(r => r < 1380 ? 'rgba(39,174,96,0.75)' : r === 1380 ? 'rgba(41,128,185,0.75)' : 'rgba(192,57,43,0.75)');
+  const ctx = document.getElementById('fxScenarioChart').getContext('2d');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: scenarios,
+      datasets:[
+        { label:'PP Homo (원/MT)', data: ppVals,   backgroundColor: colors, borderRadius:4 },
+        { label:'HDPE (원/MT)',    data: hdpeVals,  backgroundColor: colors.map(c=>c.replace('0.75','0.45')), borderRadius:4 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:'top', labels:{ boxWidth:14, font:{size:11} } },
+        annotation:{ annotations:{
+          base:{ type:'line', yMin:1380*ppBase, yMax:1380*ppBase, borderColor:'rgba(41,128,185,0.6)', borderWidth:1.5, borderDash:[5,4], label:{content:'현재 기준선', enabled:true, position:'end', font:{size:10}} }
+        }}
+      },
+      scales:{
+        x:{ ticks:{ font:{size:11} } },
+        y:{ ticks:{ font:{size:10}, callback: v => (v/10000).toFixed(0)+'만원' }, title:{ display:true, text:'원/MT', font:{size:11} }, grid:{ color:'rgba(0,0,0,.05)' } }
+      }
+    }
+  });
+})();
+
+// ──────────────────────────────────────
+// Chart 9: 환율 vs PP 원화 산점도
+// ──────────────────────────────────────
+(function(){
+  const data = usdkrw.map((r,i) => ({ x: r, y: ppHomoKRW[i] }));
+  const minR = Math.min(...usdkrw), maxR = Math.max(...usdkrw);
+  // 회귀선: slope ≈ ppBase (달러단가 평균), intercept ≈ 0 (원화환산 = rate × price)
+  const slope = 1010, intercept = 0;
+  const regLine = [{ x: minR, y: slope*minR+intercept }, { x: maxR, y: slope*maxR+intercept }];
+  const ctx = document.getElementById('fxScatterChart').getContext('2d');
+  new Chart(ctx, {
+    data:{
+      datasets:[
+        { type:'scatter', label:'월별 데이터', data, backgroundColor:'rgba(192,57,43,0.4)', pointRadius:5 },
+        { type:'line', label:'추세선', data: regLine, borderColor:'#2980b9', backgroundColor:'transparent', pointRadius:0, borderWidth:2, borderDash:[5,4] }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ boxWidth:12, font:{size:10} } } },
+      scales:{
+        x:{ title:{ display:true, text:'USD/KRW 환율 (원)', font:{size:11} }, ticks:{ font:{size:10} } },
+        y:{ title:{ display:true, text:'PP Homo 원화 환산가 (원/MT)', font:{size:11} }, ticks:{ font:{size:10}, callback: v => (v/10000).toFixed(0)+'만' } }
+      }
+    }
+  });
+})();
 
 // ──────────────────────────────────────
 // Chart 1: 레진 가격 추이

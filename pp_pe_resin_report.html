@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PP/PE 레진 단가 분석 리포트</title>
+  <style>
+    :root {
+      --primary: #1a3a5c;
+      --accent: #2980b9;
+      --accent2: #e67e22;
+      --accent3: #27ae60;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --border: #d0dae8;
+      --text: #2c3e50;
+      --muted: #7f8c8d;
+      --danger: #c0392b;
+      --warning: #f39c12;
+      --success: #27ae60;
+      --tag-blue: #eaf3fb;
+      --tag-orange: #fef5e7;
+      --tag-green: #eafaf1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, #2c5f8a 100%);
+      color: #fff;
+      padding: 40px 48px 32px;
+    }
+    header .label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: .7;
+      margin-bottom: 8px;
+    }
+    header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    header p  { font-size: .95rem; opacity: .85; }
+    header .meta {
+      margin-top: 20px;
+      display: flex; gap: 24px; flex-wrap: wrap;
+    }
+    header .meta span {
+      background: rgba(255,255,255,.15);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: .8rem;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--primary);
+      padding: 0 48px;
+      display: flex; gap: 0; overflow-x: auto;
+    }
+    nav a {
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: .85rem;
+      padding: 14px 18px;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: .2s;
+    }
+    nav a:hover, nav a.active {
+      color: #fff;
+      border-bottom-color: var(--accent2);
+    }
+
+    /* ── Layout ── */
+    main { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* ── Section ── */
+    .section { margin-bottom: 56px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-num {
+      background: var(--accent);
+      color: #fff;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 700; flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 1.35rem; font-weight: 700; color: var(--primary); }
+
+    /* ── Card grid ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .card h3 {
+      font-size: 1rem; font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .card p  { font-size: .88rem; color: var(--muted); margin-bottom: 10px; }
+    .card .tag {
+      display: inline-block;
+      font-size: .74rem; font-weight: 600;
+      padding: 2px 9px; border-radius: 12px;
+      margin-right: 4px; margin-bottom: 4px;
+    }
+    .tag-free     { background: var(--tag-green); color: var(--success); }
+    .tag-paid     { background: var(--tag-orange); color: var(--warning); }
+    .tag-asia     { background: var(--tag-blue); color: var(--accent); }
+    .tag-global   { background: #f5eef8; color: #8e44ad; }
+    .tag-daily    { background: #fdecea; color: var(--danger); }
+    .tag-weekly   { background: #eafaf1; color: var(--success); }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: .88rem; }
+    thead th {
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) { background: #f9fbfd; }
+    tbody td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px; border-radius: 10px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .badge-high   { background: #fdecea; color: var(--danger); }
+    .badge-med    { background: #fef5e7; color: var(--warning); }
+    .badge-low    { background: #eafaf1; color: var(--success); }
+
+    /* ── Alert box ── */
+    .alert {
+      border-radius: 8px; padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .alert-info    { background: var(--tag-blue);  border-left: 4px solid var(--accent); }
+    .alert-warn    { background: var(--tag-orange); border-left: 4px solid var(--warning); }
+    .alert-success { background: var(--tag-green);  border-left: 4px solid var(--success); }
+    .alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+    .alert p { font-size: .88rem; color: var(--text); }
+    .alert strong { color: var(--primary); }
+
+    /* ── Correlation chart ── */
+    .chart-area {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-area h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); }
+    .corr-bar-wrap { margin-bottom: 12px; }
+    .corr-label { font-size: .83rem; color: var(--text); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .corr-track { background: #e8eef4; border-radius: 20px; height: 18px; position: relative; }
+    .corr-fill {
+      height: 100%; border-radius: 20px;
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 8px; font-size: .72rem; font-weight: 700; color: #fff;
+      transition: width .4s;
+    }
+    .corr-high   { background: linear-gradient(90deg, #2980b9, #1abc9c); }
+    .corr-med    { background: linear-gradient(90deg, #f39c12, #e67e22); }
+    .corr-low    { background: linear-gradient(90deg, #bdc3c7, #95a5a6); }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 9px; top: 0; bottom: 0;
+      width: 2px; background: var(--border);
+    }
+    .tl-item { position: relative; margin-bottom: 20px; }
+    .tl-dot {
+      position: absolute; left: -24px; top: 4px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--accent); border: 2px solid #fff;
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .tl-dot.red    { background: var(--danger);  box-shadow: 0 0 0 2px var(--danger); }
+    .tl-dot.orange { background: var(--warning); box-shadow: 0 0 0 2px var(--warning); }
+    .tl-dot.green  { background: var(--success); box-shadow: 0 0 0 2px var(--success); }
+    .tl-date { font-size: .78rem; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+    .tl-title { font-size: .92rem; font-weight: 700; color: var(--primary); }
+    .tl-desc { font-size: .84rem; color: var(--muted); }
+
+    /* ── Methodology steps ── */
+    .steps { counter-reset: step; }
+    .step {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      display: flex; gap: 16px;
+    }
+    .step-num {
+      background: var(--primary);
+      color: #fff;
+      min-width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem; flex-shrink: 0;
+    }
+    .step-body h4 { font-size: .95rem; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+    .step-body p  { font-size: .86rem; color: var(--muted); }
+    .step-body ul { font-size: .86rem; color: var(--muted); padding-left: 18px; margin-top: 6px; }
+    .step-body ul li { margin-bottom: 4px; }
+
+    /* ── Formula box ── */
+    .formula {
+      background: #f0f4f8;
+      border: 1px dashed var(--accent);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: .88rem;
+      color: var(--primary);
+      margin: 12px 0;
+    }
+
+    /* ── Price table ── */
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .price-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      text-align: center;
+    }
+    .price-card .product { font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
+    .price-card .price   { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+    .price-card .unit    { font-size: .75rem; color: var(--muted); }
+    .price-card .change  { font-size: .82rem; margin-top: 6px; font-weight: 600; }
+    .up   { color: var(--danger); }
+    .down { color: var(--success); }
+    .flat { color: var(--muted); }
+
+    /* ── Two-col ── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px;
+      font-size: .8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="label">Raw Material Procurement Intelligence</div>
+  <h1>PP / PE 레진 단가 분석 리포트</h1>
+  <p>가격 동향 · 영향 요인 · 유가 상관관계 · 단가 산정 방법론</p>
+  <div class="meta">
+    <span>📅 기준일: 2025년 6월</span>
+    <span>🌏 대상 시장: 아시아 / 한국</span>
+    <span>🏭 품목: PP Homo · PP Copo · HDPE · LDPE · LLDPE</span>
+  </div>
+</header>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <a href="#newsletters" class="active">① 뉴스레터·단가 소스</a>
+  <a href="#price-sample">② 참고 단가표</a>
+  <a href="#factors">③ 가격 영향 요인</a>
+  <a href="#events">④ 주요 이벤트</a>
+  <a href="#correlation">⑤ 유가 상관관계</a>
+  <a href="#methodology">⑥ 단가 산정 방법론</a>
+</nav>
+
+<main>
+
+<!-- ══════════ 1. 뉴스레터 & 데이터 소스 ══════════ -->
+<section class="section" id="newsletters">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2>매일 참고해야 할 뉴스레터 & 단가 정보 소스</h2>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">💡</div>
+    <p><strong>구독 전략:</strong> 유료 전문지 1~2개 + 무료 레진 커뮤니티 + 원유 일간 브리핑을 조합하면 비용 효율적으로 시장을 모니터링할 수 있습니다.</p>
+  </div>
+
+  <h3 style="margin-bottom:14px; color:var(--primary);">🌐 글로벌 전문 가격 정보 서비스</h3>
+  <div class="card-grid">
+
+    <div class="card">
+      <h3>ICIS (Independent Chemical Information Service)</h3>
+      <p>아시아 PE·PP 주간/일간 가격 리포트. CFR 중국·동남아·한국 기준치 제공. 업계 표준 벤치마크.</p>
+      <span class="tag tag-paid">유료 구독</span>
+      <span class="tag tag-asia">아시아 특화</span>
+      <span class="tag tag-daily">일간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">icis.com</p>
+    </div>
+
+    <div class="card">
+      <h3>S&P Global Commodity Insights (Platts)</h3>
+      <p>나프타·에틸렌·프로필렌 스팟 가격, 석유화학 마진 분석. 계약 가격 협상 기준으로 활용 빈도 높음.</p>
+      <span class="tag tag-paid">유료 구독</span>
+      <span class="tag tag-global">글로벌</span>
+      <span class="tag tag-daily">일간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">spglobal.com/commodityinsights</p>
+    </div>
+
+    <div class="card">
+      <h3>ChemOrbis</h3>
+      <p>터키 기반이나 아시아·유럽 PP/PE 가격 폭넓게 커버. 무료 헤드라인 + 유료 상세 데이터. 접근성 우수.</p>
+      <span class="tag tag-paid">일부 무료</span>
+      <span class="tag tag-asia">아시아 포함</span>
+      <span class="tag tag-weekly">주간 무료</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">chemorbis.com</p>
+    </div>
+
+    <div class="card">
+      <h3>Argus Media</h3>
+      <p>PP·PE 아시아 가격 지수, 계약 프리미엄 분석. 유럽·중동 연계 분석 강점. 구독 시 맞춤 리포트 구성 가능.</p>
+      <span class="tag tag-paid">유료 구독</span>
+      <span class="tag tag-global">글로벌</span>
+      <span class="tag tag-daily">일간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">argusmedia.com</p>
+    </div>
+
+    <div class="card">
+      <h3>Petrochemical Update (OPIS)</h3>
+      <p>HIS Markit 계열. 원유-나프타-레진 통합 밸류체인 분석. 구매 담당자용 주간 요약 뉴스레터 제공.</p>
+      <span class="tag tag-paid">유료 구독</span>
+      <span class="tag tag-global">글로벌</span>
+      <span class="tag tag-weekly">주간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">opisnet.com</p>
+    </div>
+
+    <div class="card">
+      <h3>한국석유화학협회 (KPIA)</h3>
+      <p>국내 생산·수출입 통계, 제품별 가격 동향. 무료 회원가입 후 이용. 국내 수급 파악에 필수.</p>
+      <span class="tag tag-free">무료</span>
+      <span class="tag tag-asia">한국</span>
+      <span class="tag tag-weekly">월간 통계</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">kpia.or.kr</p>
+    </div>
+
+    <div class="card">
+      <h3>케미컬뉴스 / 플라스틱코리아</h3>
+      <p>국내 석유화학 뉴스 전문 매체. 매일 PP·PE 시황 기사 발행. 무료로 업계 센티멘트 파악 가능.</p>
+      <span class="tag tag-free">무료</span>
+      <span class="tag tag-asia">한국</span>
+      <span class="tag tag-daily">일간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">chemicalnews.co.kr / plastickorea.co.kr</p>
+    </div>
+
+    <div class="card">
+      <h3>PolymerUpdate / PlasticsExchange</h3>
+      <p>북미 시장 레진 현물 가격 추적. 글로벌 차익 거래(arbitrage) 흐름 파악용. 무료 주간 요약 제공.</p>
+      <span class="tag tag-free">일부 무료</span>
+      <span class="tag tag-global">북미</span>
+      <span class="tag tag-weekly">주간</span>
+      <p style="margin-top:8px;font-size:.78rem;color:var(--accent);">plasticsnews.com / theice.com</p>
+    </div>
+
+  </div>
+
+  <div class="alert alert-warn" style="margin-top:20px;">
+    <div class="alert-icon">⚠️</div>
+    <p><strong>비용 팁:</strong> ICIS 또는 ChemOrbis 유료 구독 + 국내 매체 무료 구독 조합이 실무에서 가장 많이 활용됩니다. 구매 규모에 따라 공급사(LG화학, 롯데케미칼, 한화솔루션 등)에서 주간 시황 리포트를 제공받는 경우도 있습니다.</p>
+  </div>
+</section>
+
+<!-- ══════════ 2. 참고 단가표 샘플 ══════════ -->
+<section class="section" id="price-sample">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2>PP / PE 레진 참고 단가표 (아시아 CFR 기준 샘플)</h2>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="alert-icon">⚠️</div>
+    <p><strong>주의:</strong> 아래 단가는 시장 구조 이해를 위한 <strong>예시 범위</strong>입니다. 실제 계약 단가는 ICIS·Platts 등 구독 서비스 또는 공급사 오퍼를 통해 반드시 확인하세요.</p>
+  </div>
+
+  <div class="price-grid">
+    <div class="price-card">
+      <div class="product">PP Homo (Injection)</div>
+      <div class="price">$980 <span style="font-size:.9rem">~ $1,050</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change up">▲ 나프타 연동 상승 구간</div>
+    </div>
+    <div class="price-card">
+      <div class="product">PP Homo (Film/Fiber)</div>
+      <div class="price">$1,000 <span style="font-size:.9rem">~ $1,070</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change flat">→ 횡보</div>
+    </div>
+    <div class="price-card">
+      <div class="product">PP Copolymer</div>
+      <div class="price">$1,040 <span style="font-size:.9rem">~ $1,120</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change up">▲ 프리미엄 유지</div>
+    </div>
+    <div class="price-card">
+      <div class="product">HDPE (Film)</div>
+      <div class="price">$960 <span style="font-size:.9rem">~ $1,020</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change down">▼ 중국 물량 압박</div>
+    </div>
+    <div class="price-card">
+      <div class="product">LDPE (Film)</div>
+      <div class="price">$1,050 <span style="font-size:.9rem">~ $1,130</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change flat">→ 횡보</div>
+    </div>
+    <div class="price-card">
+      <div class="product">LLDPE (C4 Film)</div>
+      <div class="price">$980 <span style="font-size:.9rem">~ $1,040</span></div>
+      <div class="unit">USD/MT · CFR 아시아</div>
+      <div class="change up">▲ 공급 타이트</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:12px; color:var(--primary);">📊 가격 구조 이해: 스프레드 개념</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>산출 방식</th>
+          <th>의미</th>
+          <th>정상 범위</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>나프타-에틸렌 스프레드</strong></td>
+          <td>에틸렌 가격 − 나프타 가격</td>
+          <td>에틸렌 크래커 마진. 수익성 지표.</td>
+          <td>$250~$400/MT</td>
+        </tr>
+        <tr>
+          <td><strong>에틸렌-PE 스프레드</strong></td>
+          <td>PE 가격 − 에틸렌 가격</td>
+          <td>PE 폴리머라이징 마진. $200 이하 시 감산 압력.</td>
+          <td>$150~$300/MT</td>
+        </tr>
+        <tr>
+          <td><strong>나프타-PP 스프레드</strong></td>
+          <td>PP 가격 − 나프타 가격</td>
+          <td>PP 통합 마진 (크래킹+폴리머). $300 이하 시 공급 축소.</td>
+          <td>$300~$500/MT</td>
+        </tr>
+        <tr>
+          <td><strong>PP-HDPE 스프레드</strong></td>
+          <td>PP 가격 − HDPE 가격</td>
+          <td>두 레진 간 가격 차이. 수요 이동 신호.</td>
+          <td>$20~$80/MT</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ 3. 가격 영향 요인 ══════════ -->
+<section class="section" id="factors">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2>PP / PE 레진 가격에 영향을 끼치는 요인</h2>
+  </div>
+
+  <div class="two-col">
+    <!-- 원가 요인 -->
+    <div>
+      <h3 style="margin-bottom:14px; color:var(--primary);">🛢️ 원가 측 요인 (Cost Push)</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>요인</th><th>메커니즘</th><th>영향도</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>국제 원유가</strong><br><small>WTI / Brent / Dubai</small></td>
+              <td>나프타의 원재료. 유가 $1 변동 시 나프타 약 $0.6~$0.8 변동. 레진에 시차 1~4주 반영.</td>
+              <td><span class="badge badge-high">최상</span></td>
+            </tr>
+            <tr>
+              <td><strong>나프타 가격</strong><br><small>CFR Japan 기준</small></td>
+              <td>에틸렌·프로필렌 크래킹 원료. PP/PE 원가의 60~70% 차지. 직접 연동.</td>
+              <td><span class="badge badge-high">최상</span></td>
+            </tr>
+            <tr>
+              <td><strong>에틸렌·프로필렌 현물가</strong></td>
+              <td>PE는 에틸렌, PP는 프로필렌이 직접 원료. 스팟 타이트 시 레진 상승 압력.</td>
+              <td><span class="badge badge-high">높음</span></td>
+            </tr>
+            <tr>
+              <td><strong>천연가스 가격</strong></td>
+              <td>미국·중동 에탄크래커 원료. 에탄 기반 PE가 아시아 시장 공급 과잉 유발 가능.</td>
+              <td><span class="badge badge-med">중간</span></td>
+            </tr>
+            <tr>
+              <td><strong>환율 (USD/KRW)</strong></td>
+              <td>달러 결제 원료의 원화 환산 비용. 원화 약세 시 국내 실질 단가 상승.</td>
+              <td><span class="badge badge-high">높음</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 수급 요인 -->
+    <div>
+      <h3 style="margin-bottom:14px; color:var(--primary);">⚖️ 수급 측 요인 (Supply/Demand)</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>요인</th><th>메커니즘</th><th>영향도</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>중국 수요·재고</strong></td>
+              <td>세계 최대 PE·PP 소비국. 춘절·국경절 전후 재고 축적·소진 패턴. PMI 지수 연동.</td>
+              <td><span class="badge badge-high">최상</span></td>
+            </tr>
+            <tr>
+              <td><strong>신규 설비 증설</strong></td>
+              <td>중국·중동 대규모 증설 시 공급 과잉 → 가격 하방 압력. 2023~25년 중국 PP 대규모 증설.</td>
+              <td><span class="badge badge-high">높음</span></td>
+            </tr>
+            <tr>
+              <td><strong>정기보수(Turnaround)</strong></td>
+              <td>아시아 크래커·폴리머 플랜트 정기보수(3~4월, 9~10월 집중). 공급 일시 감소 → 가격 지지.</td>
+              <td><span class="badge badge-med">중간</span></td>
+            </tr>
+            <tr>
+              <td><strong>물류·운임</strong></td>
+              <td>컨테이너 운임(SCFI). 홍해 사태, 파나마 가뭄 등 공급망 교란 시 프리미엄 가산.</td>
+              <td><span class="badge badge-med">중간</span></td>
+            </tr>
+            <tr>
+              <td><strong>계절적 수요</strong></td>
+              <td>Q1 춘절 후 재개수요, Q2·Q3 농업용 필름, Q4 포장재 성수기. 연간 패턴 반복.</td>
+              <td><span class="badge badge-med">중간</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;">
+    <h3 style="margin-bottom:14px; color:var(--primary);">🌍 거시·정책 요인</h3>
+    <div class="card-grid">
+      <div class="card">
+        <h3>OPEC+ 감산 정책</h3>
+        <p>원유 생산량 결정 → 나프타 가격 → 레진 원가에 최대 4주 시차를 두고 반영됩니다. 월별 OPEC 회의 일정 체크 필수.</p>
+        <span class="badge badge-high">유가 경로</span>
+      </div>
+      <div class="card">
+        <h3>미·중 무역 분쟁</h3>
+        <p>관세 부과 시 중국 수출입 물량 변화 → 아시아 전역 레진 재고·가격에 파급. 2018·2025년 사례.</p>
+        <span class="badge badge-high">수급 경로</span>
+      </div>
+      <div class="card">
+        <h3>친환경 규제</h3>
+        <p>EU 플라스틱세, SUP 규제, 한국 포장재 감량 목표 → 장기 수요 구조 변화. 재생 레진 가격에도 영향.</p>
+        <span class="badge badge-med">장기 구조</span>
+      </div>
+      <div class="card">
+        <h3>지정학적 리스크</h3>
+        <p>중동 분쟁(호르무즈 해협), 우크라이나 사태 → 원유·가스 공급 차질 → 전방위 원가 상승.</p>
+        <span class="badge badge-high">위험 요인</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 4. 주요 이벤트 캘린더 ══════════ -->
+<section class="section" id="events">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2>PP / PE 레진 가격 변동 주요 이벤트 캘린더</h2>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <h3 style="margin-bottom:14px; color:var(--primary);">📅 연간 반복 이벤트</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot green"></div>
+          <div class="tl-date">1월~2월 (춘절 전후)</div>
+          <div class="tl-title">중국 재고 축적 → 가격 강세</div>
+          <div class="tl-desc">춘절 전 2~3주: 구매 집중으로 수요 급증. 춘절 직후: 가동 재개까지 1~2주 공백. 구매팀의 최대 의사결정 시점.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot orange"></div>
+          <div class="tl-date">3월~4월 (봄 정기보수)</div>
+          <div class="tl-title">아시아 크래커 정기보수 집중</div>
+          <div class="tl-desc">한국 (LG화학·롯데케미칼), 일본, 대만 동시 정기보수. 에틸렌·나프타 스프레드 확대. 레진 단기 공급 타이트.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-date">5월~6월 (계절 조정)</div>
+          <div class="tl-title">농업용 필름 수요 피크</div>
+          <div class="tl-desc">동남아·인도 농업 시즌. LLDPE·LDPE 필름 수요 증가. PE 프리미엄 상승 구간.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot orange"></div>
+          <div class="tl-date">9월~10월 (가을 정기보수)</div>
+          <div class="tl-title">2차 정기보수 + 국경절 재고</div>
+          <div class="tl-desc">중국 국경절(10/1~7) 전 재고 축적 수요. 동시에 중동·아시아 2차 보수. 공급 타이트 + 수요 강세 동시 발생.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot green"></div>
+          <div class="tl-date">11월~12월 (성수기)</div>
+          <div class="tl-title">연말 포장재 성수기</div>
+          <div class="tl-desc">전자상거래 물동량 증가로 포장 필름·사출 수요 급증. PP·PE 가격 동반 강세. 내년 계약 협상 시즌 시작.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin-bottom:14px; color:var(--primary);">⚡ 구조적·돌발 이벤트 (과거 사례)</h3>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot red"></div>
+          <div class="tl-date">2021 (2월)</div>
+          <div class="tl-title">텍사스 한파 — PE 급등</div>
+          <div class="tl-desc">미국 걸프코스트 에틸렌 크래커 50% 가동 중단. 글로벌 HDPE·LLDPE 가격 단기 30~40% 급등. 아시아 시장 연쇄 파급.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot red"></div>
+          <div class="tl-date">2022 (2월~)</div>
+          <div class="tl-title">러시아-우크라이나 전쟁</div>
+          <div class="tl-desc">유럽 가스값 폭등 → 나프타 연동 상승 → 아시아 레진 가격 전반 급등. Brent $130 돌파. 레진 최고가 경신.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot orange"></div>
+          <div class="tl-date">2023~2024</div>
+          <div class="tl-title">중국 PE·PP 대규모 증설</div>
+          <div class="tl-desc">연간 400~600만 톤 신증설. 아시아 PP 마진 역대 최저 수준. 수입 레진 가격 경쟁 심화. 국내 공급사 감산 검토.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot orange"></div>
+          <div class="tl-date">2024 (1월~)</div>
+          <div class="tl-title">홍해 사태</div>
+          <div class="tl-desc">후티 공격으로 수에즈 우회. 중동→유럽 운임 3배 급등. 아시아로의 중동 물량 일부 전환 → 아시아 공급 과잉 압력.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot red"></div>
+          <div class="tl-date">2025 (4월~)</div>
+          <div class="tl-title">미·중 관세 전쟁 재격화</div>
+          <div class="tl-desc">상호관세 부과 → 중국 수출 감소 우려 → 국내 재고 적체 → 아시아 레진 하방 압력. 중국 경기부양 정책 상쇄 여부 주목.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 5. 유가 상관관계 분석 ══════════ -->
+<section class="section" id="correlation">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2>유가 변동성과 PP / PE 레진 단가 상관관계 분석</h2>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">📊</div>
+    <p><strong>핵심 요약:</strong> 원유 → 나프타 → 에틸렌/프로필렌 → 레진으로 이어지는 <strong>밸류체인 전가(Pass-through)</strong>가 핵심입니다. 장기(3개월+) 상관계수는 0.75~0.90으로 매우 높으나, 단기에는 수급 요인이 유가를 압도하는 경우가 빈번합니다.</p>
+  </div>
+
+  <div class="chart-area">
+    <h3>원유가 → 레진 가격 상관계수 (장기 6개월 기준)</h3>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>PP Homo (사출)</span><span>r = 0.87</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:87%">0.87</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>HDPE (사출)</span><span>r = 0.85</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:85%">0.85</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>LLDPE (필름)</span><span>r = 0.83</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:83%">0.83</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>LDPE (필름)</span><span>r = 0.80</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:80%">0.80</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>PP Copolymer</span><span>r = 0.82</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:82%">0.82</div></div>
+    </div>
+    <p style="margin-top:12px; font-size:.78rem; color:var(--muted);">* 피어슨 상관계수. 2018~2024년 월평균 가격 기준. 단기(1개월)는 r = 0.3~0.6으로 낮아짐.</p>
+  </div>
+
+  <div class="chart-area">
+    <h3>시차별 전가율 분석 (유가 변동 → 레진 반영 시간)</h3>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>즉시~1주: 나프타 현물 반영</span><span>전가율 70~90%</span></div>
+      <div class="corr-track"><div class="corr-fill corr-high" style="width:80%">높음</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>2~4주: 에틸렌/프로필렌 스팟 반영</span><span>전가율 50~75%</span></div>
+      <div class="corr-track"><div class="corr-fill corr-med" style="width:65%">중간</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>4~8주: 레진 현물가 반영</span><span>전가율 40~70%</span></div>
+      <div class="corr-track"><div class="corr-fill corr-med" style="width:55%">중간</div></div>
+    </div>
+    <div class="corr-bar-wrap">
+      <div class="corr-label"><span>2~3개월: 계약가 반영 (월별 계약)</span><span>전가율 30~60%</span></div>
+      <div class="corr-track"><div class="corr-fill corr-low" style="width:45%">낮음</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:14px; color:var(--primary);">📋 상관관계 구간별 특성</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>구간</th><th>상관계수 (r)</th><th>지배적 요인</th><th>구매 전략 시사점</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>유가 급등기</strong><br><small>Brent $90+ 이상</small></td>
+          <td>r = 0.85~0.92</td>
+          <td>원가 전가 (cost push). 공급사 인상 요구 강해짐.</td>
+          <td>장기 계약 비중 확대. 유가 헤지 검토. 재고 전략적 확보.</td>
+        </tr>
+        <tr>
+          <td><strong>유가 하락기</strong><br><small>Brent $60 이하</small></td>
+          <td>r = 0.70~0.85</td>
+          <td>수요 부진과 겹칠 경우 레진 하락 폭 유가보다 클 수 있음.</td>
+          <td>스팟 비중 증가 유리. 계약 단가 재협상 시점. 재고 최소화.</td>
+        </tr>
+        <tr>
+          <td><strong>유가 중립기</strong><br><small>Brent $70~$85</small></td>
+          <td>r = 0.40~0.65</td>
+          <td>수급 요인(중국 수요, 증설)이 지배. 유가와 무관하게 단독 움직임.</td>
+          <td>ICIS 아시아 수급 보고서 중심 모니터링. 가격 예측 난이도 높음.</td>
+        </tr>
+        <tr>
+          <td><strong>지정학 쇼크기</strong><br><small>2022, 2024 사례</small></td>
+          <td>r 일시 붕괴</td>
+          <td>공급망 불확실성. 레진이 유가보다 먼저 또는 더 크게 움직임.</td>
+          <td>안전 재고 상향. 복수 공급처 확보. 월간 검토 → 주간 검토 전환.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="two-col" style="margin-top:24px;">
+    <div class="alert alert-success">
+      <div class="alert-icon">✅</div>
+      <div>
+        <p><strong>상관관계가 높은 경우 (유가 = 선행지표)</strong></p>
+        <p>유가가 2~4주 연속 방향성을 보일 때, 레진 단가 협상에서 유가 추세를 근거로 인상/인하 논거를 활용 가능합니다. Brent $5 상승 → PP 약 $20~35/MT 상승 경험치 적용.</p>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <div class="alert-icon">⚠️</div>
+      <div>
+        <p><strong>상관관계가 낮은 경우 (수급이 지배)</strong></p>
+        <p>중국 증설기(2023~2025)처럼 공급 과잉이 심할 때는 유가 상승에도 레진 가격이 떨어지는 역행 현상이 발생합니다. 스프레드(PP−나프타) 지표를 병행 모니터링하세요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 6. 단가 산정 방법론 ══════════ -->
+<section class="section" id="methodology">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <h2>PP / PE 레진 단가 산정 방법론 (협의 프레임워크)</h2>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">💬</div>
+    <p><strong>협의 목적:</strong> 단가 산정 결과의 도출 방식에 대해 구매팀–공급사 간 <strong>투명한 근거 공유</strong>가 이루어져야 분쟁 최소화 및 장기 파트너십이 가능합니다. 아래 6단계 프레임워크를 통해 산출 기준을 명확히 합니다.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>벤치마크 가격 지수 선정</h4>
+        <p>어떤 기준 지수를 사용할지 공급사와 사전 합의합니다. 한국·아시아 시장에서 가장 많이 쓰이는 기준:</p>
+        <ul>
+          <li><strong>ICIS PP/PE 아시아 CFR 가격</strong> — 계약 협상 업계 표준</li>
+          <li><strong>S&P Global Platts 나프타 CFR Japan</strong> — 원가 연동 계약 시</li>
+          <li><strong>ChemOrbis 아시아 평균</strong> — 소규모 거래 참조</li>
+          <li><strong>공급사 자체 오퍼 평균</strong> — 복수 공급사 Offer 취합</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>계약 유형 결정: 계약가 vs 스팟가</h4>
+        <ul>
+          <li><strong>월별 계약(Monthly Contract):</strong> 전월 ICIS 평균 ± 조정분. 예측 가능성 높으나 시장 하락 시 손해.</li>
+          <li><strong>분기 계약(Quarterly):</strong> 변동성 완화. 대형 구매처 선호. 조기 가격 고정 가능.</li>
+          <li><strong>스팟(Spot):</strong> 시장가 즉시 반영. 하락기 유리, 상승기 불리. 소량·긴급 구매 시.</li>
+          <li><strong>혼합 전략:</strong> 기본 물량 70% 계약 + 30% 스팟 탄력 운용 권장.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>원가 연동 공식(Formula Pricing) 협의</h4>
+        <p>나프타 연동 방식은 가장 투명한 산정법입니다.</p>
+        <div class="formula">
+PP 계약가 = 나프타 기준가(CFR Japan 당월 평균) × 1.XX + 고정 마진($X/MT) + 물류비
+
+예시: PP 계약가 = 나프타 $650 × 1.55 + $80(고정 마진) + $20(해운)
+             = $1,107.5/MT
+
+※ 나프타 배율(1.45~1.65)과 고정 마진은 공급사와 협의로 결정
+        </div>
+        <p>에틸렌 연동 방식(PE의 경우)도 동일한 구조로 협의 가능합니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>가격 조정 메커니즘 설계</h4>
+        <ul>
+          <li><strong>조정 기준일:</strong> 매월 1일, 15일 등 사전 합의</li>
+          <li><strong>조정 트리거:</strong> 나프타 월평균 변동 ±$30/MT 초과 시 자동 재조정</li>
+          <li><strong>조정 상한:</strong> 월간 ±$50/MT, 분기 ±$100/MT 상한 설정 검토</li>
+          <li><strong>환율 조항:</strong> USD/KRW 1,300원 초과 시 추가 협의 조항 삽입</li>
+          <li><strong>불가항력(Force Majeure):</strong> 원유 공급 차질 시 일시 연동 면제 조항</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>복수 공급사 오퍼 비교 분석</h4>
+        <p>단일 공급사 의존을 탈피하고 협상력을 높이기 위한 구조:</p>
+        <ul>
+          <li><strong>국내 공급사:</strong> LG화학, 롯데케미칼, 한화솔루션, SK지오센트릭</li>
+          <li><strong>중동 공급사:</strong> SABIC, Borouge, QAPCO, Tasnee</li>
+          <li><strong>동남아·기타:</strong> PTT Global Chemical, Lotte Versalis (인도네시아)</li>
+          <li>최소 3개사 오퍼 취합 → ICIS 기준가 대비 프리미엄/디스카운트 비교</li>
+          <li>오퍼 유효기간·결제 조건(T/T, L/C)·MOQ 병기 비교표 작성</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>내부 승인 및 모니터링 루프</h4>
+        <ul>
+          <li><strong>단가 결정 기록:</strong> 결정 단가, 기준 지수, 결정일, 담당자, 근거 문서 보관</li>
+          <li><strong>주간 모니터링:</strong> ICIS 지수 vs 계약 단가 차이(괴리율) 추적</li>
+          <li><strong>월간 리뷰:</strong> 전월 단가 적정성 평가 → 다음 달 협상 인풋</li>
+          <li><strong>KPI 제안:</strong> 계약 단가 vs ICIS 평균 ±5% 이내 유지율 목표</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-success" style="margin-top:24px;">
+    <div class="alert-icon">🎯</div>
+    <div>
+      <p><strong>방법론 협의 체크리스트</strong></p>
+      <p>□ 기준 지수(ICIS/Platts) 공급사와 합의 완료<br>
+         □ 원가 연동 공식 수식 문서화<br>
+         □ 조정 주기 및 트리거 계약서 명시<br>
+         □ 복수 공급사 최소 3개사 확보<br>
+         □ 월간 괴리율 리포트 생성 자동화<br>
+         □ 환율·불가항력 조항 포함</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>PP/PE 레진 단가 분석 리포트 — 원재료 구매팀 내부 참고용</p>
+  <p style="margin-top:6px;">가격 데이터 출처: ICIS, S&amp;P Global Platts, ChemOrbis, KPIA 참조 / 본 리포트의 단가는 예시 범위이며 실거래가는 별도 확인 필요</p>
+</footer>
+
+</body>
+</html>

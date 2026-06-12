@@ -1,0 +1,12 @@
+# 환경변수 (절대 커밋 금지)
+.env
+resin-tracker/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/

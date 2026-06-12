@@ -335,9 +335,46 @@ $py = "C:\Users\Admin\AppData\Local\Programs\Python\Python312\python.exe"
 
 ---
 
+## Railway 배포 (클라우드 공유)
+
+팀원과 URL로 공유하려면 Railway에 배포하세요.
+
+### 배포 단계
+
+**1. GitHub push**
+```powershell
+git add resin-tracker/
+git commit -m "resin-tracker: Railway 배포 준비"
+git push origin main
+```
+
+**2. Railway 프로젝트 생성**
+1. [railway.app](https://railway.app) 로그인
+2. New Project → Deploy from GitHub → 저장소 선택
+3. Settings → **Root Directory = `resin-tracker`** 설정
+
+**3. 환경변수 등록** (Railway Dashboard → Variables)
+```
+EMAIL_FROM     = your@gmail.com
+EMAIL_PASSWORD = 앱비밀번호16자리
+EMAIL_TO       = receiver@company.com
+SMTP_HOST      = smtp.gmail.com
+SMTP_PORT      = 587
+```
+
+**4. 배포 완료** — Railway가 자동으로 `pip install -r requirements.txt` → `python app.py` 실행  
+공개 URL 발급 (예: `https://resin-tracker-xxx.railway.app`)
+
+### 주의
+- `data.json`은 재배포 시 초기화됨 — 중요 데이터는 엑셀로 백업 후 배포
+- PORT는 Railway가 자동 지정 (별도 설정 불필요)
+
+---
+
 ## 변경 이력
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| v3.0 | 2026-06-12 | Flask 백엔드 전환, 엑셀 내보내기, 이메일 알림, python-dotenv 보안, Railway 배포 가이드 |
 | v2.0 | 2026-06-12 | 에이전트 하네스 구조 추가 (3 agents + hooks + skills), 트러블슈팅 FAQ, 서버 자동시작 스크립트, 빈 상태 메시지, 상수화(ALERT_DAYS 등), 인쇄 CSS |
 | v1.0 | 2026-06-01 | 초기 구성: 7탭 대시보드, data.json 기반 데이터 관리 |

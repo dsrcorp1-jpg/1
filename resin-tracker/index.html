@@ -153,6 +153,19 @@
   }
   .tbl tr:hover td { background: var(--gray-50); }
   .tbl tr:last-child td { border-bottom: none; }
+  @media (max-width: 600px) {
+    .tbl thead { display: none; }
+    .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+    .tbl tr { border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 10px; padding: 8px 4px; }
+    .tbl td { padding: 6px 12px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    .tbl td::before { content: attr(data-label); color: var(--gray-500); font-weight: 600; font-size: 11px; white-space: nowrap; margin-right: 8px; flex-shrink: 0; }
+    .tab-content { padding: 12px 8px; }
+    .app-header { padding: 0 12px; }
+    .header-actions { gap: 4px; }
+    .header-actions button { padding: 6px 8px; font-size: 11px; }
+    .fab { bottom: 16px; right: 16px; }
+    .modal-body { grid-template-columns: 1fr; }
+  }
   /* Progress Stepper */
   .stepper {
     display: flex; align-items: center;

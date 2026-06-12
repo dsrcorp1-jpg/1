@@ -28,7 +28,50 @@ $py = "C:\Users\Admin\AppData\Local\Programs\Python\Python312\python.exe"
 
 ---
 
-## 핵심 파일 구조
+## resin-tracker 대시보드 (주력 프로젝트)
+
+Flask 백엔드 + 7탭 구매 관리 대시보드. 브라우저에서 직접 편집·저장.
+
+### 파일 구조
+```
+resin-tracker/
+  index.html          ← 메인 대시보드 (7탭, Chart.js, 인라인 편집)
+  app.py              ← Flask 백엔드 (/api/data, /api/export, /api/alert)
+  data/data.json      ← 통합 데이터 (오더·재고·시장가)
+  requirements.txt    ← flask, gunicorn, openpyxl, python-dotenv
+  .env                ← 이메일 설정 (절대 커밋 금지)
+  .env.example        ← 환경변수 예시
+```
+
+### Flask 실행
+```powershell
+$py = "C:\Users\Admin\AppData\Local\Programs\Python\Python312\python.exe"
+Set-Location "C:\Temp\ai-workshop\resin-tracker"
+& $py app.py
+# http://localhost:8080
+```
+
+### 에이전트 호출
+| 에이전트 | 언제 호출 | 용도 |
+|---------|----------|------|
+| `resin-data-validator` | data.json 수정 전 | stage·날짜·숫자·필수필드 4단계 검증 |
+| `dashboard-dev` | index.html 기능 추가/버그 수정 | Chart.js·탭·모달 개발 |
+| `doc-reviewer` | README·CLAUDE.md 업데이트 후 | 문서 품질 검토 |
+| `rubric-evaluator` | 품질 점검 요청 시 | 6차원 루브릭 채점 (24점 만점) |
+
+### 스킬 활용
+- `data-update`: 오더·재고 입력 템플릿
+- `issue-runner`: GitHub 이슈 자동 처리
+- `briefing-improver`: 자동화 개선 파이프라인
+
+### data.json 제약
+- `stage` 허용값: `네고중·계약완료·발주대기·선적완료·항해중·통관중·배차완료`
+- 날짜: `YYYY-MM-DD` 형식 필수
+- 금액·수량: 숫자형 (문자열 X)
+
+---
+
+## 핵심 파일 구조 (레거시 리포트)
 
 ```
 pp_pe_resin_report_v3.html   ← 최종 통합 리포트 (9섹션, Chart.js)

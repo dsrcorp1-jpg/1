@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request, send_from_directory, send_file
 import json, os, smtplib, io
+from dotenv import load_dotenv
+load_dotenv()
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
@@ -12,7 +14,7 @@ DATA_FILE = os.path.join(BASE, 'data', 'data.json')
 
 
 def load_data():
-    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+    with open(DATA_FILE, 'r', encoding='utf-8-sig') as f:
         return json.load(f)
 
 
@@ -36,11 +38,36 @@ def static_files(path):
 def api_get():
     return jsonify(load_data())
 
+VALID_STAGES   = {'네고중','계약완료','발주대기','선적완료','항해중','통관중','배차완료'}
+VALID_NEGO_ST  = {'진행중','완료'}
+VALID_CUST_ST  = {'대기중','진행중','완료'}
+VALID_DISP_ST  = {'대기중','진행중','완료'}
+
+def validate_orders(orders):
+    errors = []
+    for o in orders:
+        oid = o.get('id', '?')
+        if o.get('stage') and o['stage'] not in VALID_STAGES:
+            errors.append(f"{oid}: stage '{o['stage']}' 허용값 아님")
+        n = o.get('negotiation') or {}
+        if n.get('status') and n['status'] not in VALID_NEGO_ST:
+            errors.append(f"{oid}: negotiation.status '{n['status']}' 허용값 아님")
+        c = o.get('customs') or {}
+        if c.get('status') and c['status'] not in VALID_CUST_ST:
+            errors.append(f"{oid}: customs.status '{c['status']}' 허용값 아님")
+        d = o.get('dispatch') or {}
+        if d.get('status') and d['status'] not in VALID_DISP_ST:
+            errors.append(f"{oid}: dispatch.status '{d['status']}' 허용값 아님")
+    return errors
+
 @app.route('/api/data', methods=['POST'])
 def api_save():
     data = request.get_json(force=True)
     if not data:
         return jsonify({'ok': False, 'error': '데이터 없음'}), 400
+    errors = validate_orders(data.get('orders', []))
+    if errors:
+        return jsonify({'ok': False, 'error': '검증 실패', 'details': errors}), 400
     save_data(data)
     return jsonify({'ok': True})
 
@@ -180,10 +207,15 @@ def api_alert():
     today  = date.today()
     alerts = []
 
-    # ETA 임박 오더
+    # 안전재고 미달
+    for inv in data.get('inventory', []):
+        if inv.get('currentStock', 0) < inv.get('safetyStock', 0):
+            alerts.append(f"⚠️ {inv['product']} 현재고 {inv['currentStock']}MT — 안전재고({inv['safetyStock']}MT) 미달")
+
+    # ETA 임박 오더 (항해중)
     for o in data.get('orders', []):
         eta = o.get('shipment', {}).get('eta', '')
-        if eta and o.get('stage') in ('선적완료', '항해중'):
+        if eta and o.get('stage') == '항해중':
             try:
                 days = (datetime.strptime(eta, '%Y-%m-%d').date() - today).days
                 if 0 <= days <= 14:
@@ -191,10 +223,10 @@ def api_alert():
             except Exception:
                 pass
 
-    # 안전재고 미달
-    for inv in data.get('inventory', []):
-        if inv.get('currentStock', 0) < inv.get('safetyStock', 0):
-            alerts.append(f"⚠️ {inv['product']} 현재고 {inv['currentStock']}MT — 안전재고({inv['safetyStock']}MT) 미달")
+    # 통관 진행 중
+    for o in data.get('orders', []):
+        if o.get('stage') == '통관중':
+            alerts.append(f"🏛 {o['id']} ({o['product']}) 통관 진행 중 — 완료 확인 필요")
 
     if not alerts:
         return jsonify({'ok': True, 'message': '알림 조건 없음 (긴급 건 없음)'})

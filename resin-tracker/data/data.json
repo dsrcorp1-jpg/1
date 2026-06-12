@@ -1,0 +1,290 @@
+﻿{
+  "lastUpdated": "2026-06-12",
+  "orders": [
+    {
+      "id": "ORD-2026-001",
+      "product": "PP Homo",
+      "grade": "H380F",
+      "supplier": "LyondellBasell",
+      "origin": "사우디아라비아",
+      "quantity": 500,
+      "unit": "MT",
+      "stage": "배차완료",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1020,
+        "counterPrice": 995,
+        "contractPrice": 1010,
+        "currency": "USD/MT",
+        "marketRef": 1010,
+        "date": "2026-04-05"
+      },
+      "contract": {
+        "contractNo": "C-2026-PP-001",
+        "signDate": "2026-04-10",
+        "paymentTerms": "T/T 30days",
+        "incoterms": "CFR Busan",
+        "deliveryMonth": "2026-06"
+      },
+      "shipment": {
+        "vessel": "EVER GOLDEN",
+        "blNo": "EGLV123456789",
+        "etd": "2026-05-10",
+        "eta": "2026-06-02",
+        "portOfLoading": "Dammam",
+        "portOfDischarge": "부산"
+      },
+      "customs": {
+        "arrivalDate": "2026-06-02",
+        "declarationDate": "2026-06-03",
+        "clearanceDate": "2026-06-05",
+        "status": "완료"
+      },
+      "dispatch": {
+        "status": "완료",
+        "date": "2026-06-06",
+        "destination": "울산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-002",
+      "product": "HDPE",
+      "grade": "TR571M",
+      "supplier": "SABIC",
+      "origin": "사우디아라비아",
+      "quantity": 300,
+      "unit": "MT",
+      "stage": "항해중",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1005,
+        "counterPrice": 980,
+        "contractPrice": 990,
+        "currency": "USD/MT",
+        "marketRef": 990,
+        "date": "2026-04-20"
+      },
+      "contract": {
+        "contractNo": "C-2026-HDPE-001",
+        "signDate": "2026-04-25",
+        "paymentTerms": "L/C 60days",
+        "incoterms": "CFR Incheon",
+        "deliveryMonth": "2026-06"
+      },
+      "shipment": {
+        "vessel": "MSC DIANA",
+        "blNo": "MSCU987654321",
+        "etd": "2026-05-20",
+        "eta": "2026-06-18",
+        "portOfLoading": "Jubail",
+        "portOfDischarge": "인천"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": "안산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-003",
+      "product": "LDPE",
+      "grade": "LD150BW",
+      "supplier": "Hanwha",
+      "origin": "한국",
+      "quantity": 200,
+      "unit": "MT",
+      "stage": "통관중",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1075,
+        "counterPrice": 1050,
+        "contractPrice": 1060,
+        "currency": "USD/MT",
+        "marketRef": 1060,
+        "date": "2026-05-01"
+      },
+      "contract": {
+        "contractNo": "C-2026-LDPE-001",
+        "signDate": "2026-05-05",
+        "paymentTerms": "T/T 45days",
+        "incoterms": "DDP Ulsan",
+        "deliveryMonth": "2026-06"
+      },
+      "shipment": {
+        "vessel": "KMTC BUSAN",
+        "blNo": "KMTC202605001",
+        "etd": "2026-05-28",
+        "eta": "2026-06-05",
+        "portOfLoading": "울산",
+        "portOfDischarge": "울산"
+      },
+      "customs": {
+        "arrivalDate": "2026-06-05",
+        "declarationDate": "2026-06-06",
+        "clearanceDate": "",
+        "status": "진행중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": "울산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-004",
+      "product": "PP Copo",
+      "grade": "BJ500HI",
+      "supplier": "Braskem",
+      "origin": "브라질",
+      "quantity": 400,
+      "unit": "MT",
+      "stage": "계약완료",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1090,
+        "counterPrice": 1055,
+        "contractPrice": 1070,
+        "currency": "USD/MT",
+        "marketRef": 1070,
+        "date": "2026-05-15"
+      },
+      "contract": {
+        "contractNo": "C-2026-PP-002",
+        "signDate": "2026-05-20",
+        "paymentTerms": "T/T 30days",
+        "incoterms": "CFR Busan",
+        "deliveryMonth": "2026-07"
+      },
+      "shipment": {
+        "vessel": "",
+        "blNo": "",
+        "etd": "2026-06-25",
+        "eta": "2026-07-28",
+        "portOfLoading": "Santos",
+        "portOfDischarge": "부산"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": "부산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-005",
+      "product": "LLDPE",
+      "grade": "LL6201XR",
+      "supplier": "ExxonMobil",
+      "origin": "미국",
+      "quantity": 350,
+      "unit": "MT",
+      "stage": "네고중",
+      "negotiation": {
+        "status": "진행중",
+        "offerPrice": 985,
+        "counterPrice": 960,
+        "contractPrice": null,
+        "currency": "USD/MT",
+        "marketRef": 970,
+        "date": "2026-06-08"
+      },
+      "contract": {
+        "contractNo": "",
+        "signDate": "",
+        "paymentTerms": "",
+        "incoterms": "CFR Busan",
+        "deliveryMonth": "2026-07"
+      },
+      "shipment": {
+        "vessel": "",
+        "blNo": "",
+        "etd": "",
+        "eta": "",
+        "portOfLoading": "Houston",
+        "portOfDischarge": "부산"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": ""
+      }
+    }
+  ],
+  "inventory": [
+    {
+      "product": "PP Homo",
+      "currentStock": 320,
+      "safetyStock": 200,
+      "incomingStock": 500,
+      "outgoingPlan": 150,
+      "unit": "MT",
+      "avgDailyUsage": 18,
+      "location": "울산 창고"
+    },
+    {
+      "product": "PP Copo",
+      "currentStock": 85,
+      "safetyStock": 150,
+      "incomingStock": 400,
+      "outgoingPlan": 120,
+      "unit": "MT",
+      "avgDailyUsage": 12,
+      "location": "부산 창고"
+    },
+    {
+      "product": "HDPE",
+      "currentStock": 210,
+      "safetyStock": 180,
+      "incomingStock": 300,
+      "outgoingPlan": 90,
+      "unit": "MT",
+      "avgDailyUsage": 15,
+      "location": "인천 창고"
+    },
+    {
+      "product": "LDPE",
+      "currentStock": 140,
+      "safetyStock": 100,
+      "incomingStock": 200,
+      "outgoingPlan": 80,
+      "unit": "MT",
+      "avgDailyUsage": 10,
+      "location": "울산 창고"
+    },
+    {
+      "product": "LLDPE",
+      "currentStock": 95,
+      "safetyStock": 120,
+      "incomingStock": 350,
+      "outgoingPlan": 100,
+      "unit": "MT",
+      "avgDailyUsage": 11,
+      "location": "울산 창고"
+    }
+  ],
+  "marketPrices": [
+    { "month": "2026-01", "ppHomo": 980, "ppCopo": 1040, "hdpe": 960, "ldpe": 1030, "lldpe": 945, "naphtha": 610, "brent": 72 },
+    { "month": "2026-02", "ppHomo": 990, "ppCopo": 1050, "hdpe": 970, "ldpe": 1040, "lldpe": 950, "naphtha": 620, "brent": 73 },
+    { "month": "2026-03", "ppHomo": 1000, "ppCopo": 1055, "hdpe": 975, "ldpe": 1045, "lldpe": 955, "naphtha": 625, "brent": 73 },
+    { "month": "2026-04", "ppHomo": 1005, "ppCopo": 1060, "hdpe": 980, "ldpe": 1050, "lldpe": 960, "naphtha": 628, "brent": 74 },
+    { "month": "2026-05", "ppHomo": 1010, "ppCopo": 1065, "hdpe": 985, "ldpe": 1055, "lldpe": 965, "naphtha": 630, "brent": 74 },
+    { "month": "2026-06", "ppHomo": 1200, "ppCopo": 1070, "hdpe": 990, "ldpe": 1060, "lldpe": 970, "naphtha": 630, "brent": 74 }
+  ]
+}

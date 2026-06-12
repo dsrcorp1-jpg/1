@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PP/PE 레진 구매 관리 시스템</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #1e40af;
+    --primary-light: #3b82f6;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #0891b2;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-600: #475569;
+    --gray-800: #1e293b;
+    --white: #ffffff;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    font-size: 14px;
+  }
+  /* Header */
+  .app-header {
+    background: var(--primary);
+    color: white;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    box-shadow: var(--shadow-md);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  .header-meta { font-size: 12px; opacity: 0.8; }
+  /* Nav Tabs */
+  .nav-tabs {
+    background: var(--white);
+    border-bottom: 2px solid var(--gray-200);
+    display: flex;
+    padding: 0 24px;
+    overflow-x: auto;
+    gap: 2px;
+    position: sticky; top: 56px; z-index: 99;
+    box-shadow: var(--shadow);
+  }
+  .nav-tab {
+    padding: 14px 18px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-600);
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-tab:hover { color: var(--primary); background: var(--gray-50); }
+  .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+  .nav-tab .tab-badge {
+    background: var(--primary-light);
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+  /* Content */
+  .content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  /* Cards */
+  .card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; gap: 8px;
+  }
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  /* Stat Cards */
+  .stat-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .stat-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .stat-label { font-size: 12px; color: var(--gray-600); }
+  .stat-value { font-size: 24px; font-weight: 700; line-height: 1.2; }
+  .stat-sub { font-size: 11px; color: var(--gray-600); margin-top: 2px; }
+  /* Stage Badge */
+  .stage-badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .stage-네고중     { background:#fef3c7; color:#92400e; }
+  .stage-계약완료   { background:#e0e7ff; color:#3730a3; }
+  .stage-발주대기   { background:#f3e8ff; color:#6b21a8; }
+  .stage-선적완료   { background:#dbeafe; color:#1e40af; }
+  .stage-항해중     { background:#cffafe; color:#155e75; }
+  .stage-통관중     { background:#fef9c3; color:#854d0e; }
+  .stage-배차완료   { background:#dcfce7; color:#166534; }
+  /* Table */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th {
+    background: var(--gray-50);
+    color: var(--gray-600);
+    font-weight: 600;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--gray-200);
+    white-space: nowrap;
+  }
+  .tbl td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+  .tbl tr:hover td { background: var(--gray-50); }
+  .tbl tr:last-child td { border-bottom: none; }
+  /* Progress Stepper */
+  .stepper {
+    display: flex; align-items: center;
+    gap: 0; margin: 6px 0;
+  }
+  .step {
+    display: flex; flex-direction: column; align-items: center;
+    flex: 1;
+  }
+  .step-dot {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-300);
+    background: var(--white);
+    position: relative; z-index: 1;
+    transition: all 0.2s;
+  }
+  .step-dot.done { background: var(--success); border-color: var(--success); }
+  .step-dot.active { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,64,175,0.2); }
+  .step-label { font-size: 10px; color: var(--gray-600); margin-top: 4px; text-align: center; }
+  .step-line {
+    flex: 1; height: 2px;
+    background: var(--gray-200);
+    margin-top: -10px;
+  }
+  .step-line.done { background: var(--success); }
+  /* Alert */
+  .alert {
+    padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alert-warning { background: #fffbeb; border-left: 3px solid var(--warning); color: #78350f; }
+  .alert-danger  { background: #fff1f2; border-left: 3px solid var(--danger);  color: #9f1239; }
+  .alert-info    { background: #f0f9ff; border-left: 3px solid var(--info);    color: #0c4a6e; }
+  .alert-success { background: #f0fdf4; border-left: 3px solid var(--success); color: #14532d; }
+  /* Inventory Bar */
+  .inv-bar-wrap { margin: 4px 0 2px; }
+  .inv-bar-track {
+    height: 10px; border-radius: 5px;
+    background: var(--gray-200);
+    position: relative; overflow: visible;
+  }
+  .inv-bar-fill {
+    height: 100%; border-radius: 5px;
+    transition: width 0.4s;
+    position: relative;
+  }
+  .inv-bar-safety {
+    position: absolute; top: -3px; bottom: -3px;
+    width: 2px; background: var(--danger);
+    border-radius: 2px; z-index: 2;
+  }
+  /* Price diff */
+  .price-good { color: var(--success); font-weight: 600; }
+  .price-bad  { color: var(--danger);  font-weight: 600; }
+  /* Util */
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .fw-600 { font-weight: 600; }
+  .mt-16 { margin-top: 16px; }
+  .chip {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 4px; font-size: 11px; font-weight: 600;
+    background: var(--gray-100); color: var(--gray-600);
+  }
+  .section-title {
+    font-size: 16px; font-weight: 700;
+    color: var(--gray-800); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .canvas-wrap { position: relative; height: 260px; }
+  /* Order detail expand */
+  .order-row { cursor: pointer; }
+  .order-detail { display: none; background: var(--gray-50); }
+  .order-detail.open { display: table-row; }
+  .order-detail td { padding: 16px 20px !important; }
+  .detail-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .detail-block { }
+  .detail-block .lbl { font-size: 11px; color: var(--gray-600); margin-bottom: 3px; }
+  .detail-block .val { font-size: 13px; font-weight: 500; }
+  .empty-val { color: var(--gray-300); }
+  /* Dot indicator */
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+  .dot-green { background: var(--success); }
+  .dot-yellow { background: var(--warning); }
+  .dot-red { background: var(--danger); }
+  .dot-blue { background: var(--primary-light); }
+  .dot-gray { background: var(--gray-300); }
+  /* Edit Mode */
+  .editable-cell { cursor: pointer; }
+  body.edit-mode .editable-cell:hover { background: #eff6ff !important; outline: 1px dashed var(--primary-light); border-radius: 3px; }
+  body.edit-mode .editable-cell::after { content: ' ✏'; font-size: 9px; color: var(--primary-light); opacity: 0.7; }
+  .edit-banner { display: none; background: #1d4ed8; color: white; text-align: center; padding: 5px 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+  body.edit-mode .edit-banner { display: block; }
+  body.edit-mode .app-header { background: #1e3a8a; }
+  .header-btns { display: flex; gap: 8px; align-items: center; }
+  .header-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.15); color: white; font-size: 12px; cursor: pointer; font-weight: 500; }
+  .header-btn:hover { background: rgba(255,255,255,0.25); }
+  .header-btn.active { background: #22c55e; border-color: #22c55e; }
+  /* Floating Dropdown */
+  .float-dropdown { position:fixed;z-index:9999;background:white;border:1px solid var(--primary);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.18);overflow:hidden;min-width:140px; }
+  .float-dropdown-item { padding:12px 20px;cursor:pointer;font-size:13px;font-weight:500;border-bottom:1px solid var(--gray-100); }
+  .float-dropdown-item:last-child { border-bottom:none; }
+  .float-dropdown-item:hover { background:#eff6ff;color:var(--primary); }
+  /* Action Buttons */
+  .action-btn { padding:3px 8px;border-radius:5px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-size:11px;font-weight:600; }
+  .action-btn-edit { color:var(--primary); }
+  .action-btn-edit:hover { background:#eff6ff;border-color:var(--primary); }
+  .action-btn-del { color:var(--danger); }
+  .action-btn-del:hover { background:#fff1f2;border-color:var(--danger); }
+  /* Add Order Button */
+  .fab { position:fixed;bottom:28px;right:28px;z-index:500;background:var(--primary);color:white;border:none;border-radius:50px;padding:12px 22px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(30,64,175,0.4);display:flex;align-items:center;gap:8px; }
+  .fab:hover { background:#1e3a8a;transform:translateY(-1px); }
+  /* Modal */
+  .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;padding:20px 16px; }
+  .modal-box { background:white;border-radius:14px;max-width:820px;margin:0 auto;box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+  .modal-header { padding:18px 24px;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center; }
+  .modal-body { padding:20px 24px;max-height:70vh;overflow-y:auto; }
+  .modal-footer { padding:14px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:10px; }
+  .modal-section { margin-bottom:20px; }
+  .modal-section-title { font-size:12px;font-weight:700;color:var(--primary);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--gray-200); }
+  .modal-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px; }
+  @media(max-width:600px) { .modal-grid { grid-template-columns:1fr 1fr; } }
+  .form-field label { font-size:11px;color:var(--gray-600);display:block;margin-bottom:4px; }
+  .form-field input, .form-field select { width:100%;padding:7px 10px;border:1px solid var(--gray-300);border-radius:6px;font-size:13px;box-sizing:border-box;font-family:inherit; }
+  .form-field input:focus, .form-field select:focus { outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(30,64,175,0.1); }
+  .btn-primary { padding:8px 22px;border-radius:7px;border:none;background:var(--primary);color:white;cursor:pointer;font-size:13px;font-weight:600; }
+  .btn-primary:hover { background:#1e3a8a; }
+  .btn-secondary { padding:8px 18px;border-radius:7px;border:1px solid var(--gray-300);background:white;cursor:pointer;font-size:13px; }
+  .btn-secondary:hover { background:var(--gray-50); }
+  .empty-state {
+    padding: 32px;
+    text-align: center;
+    color: var(--gray-600);
+    font-size: 14px;
+  }
+  .empty-state span { font-size: 28px; display: block; margin-bottom: 8px; }
+  @media print {
+    .app-header { display: none; }
+    .nav-tabs { display: none; }
+    .tab-panel { display: none !important; }
+    .tab-panel.active { display: block !important; }
+    .card { box-shadow: none; border: 1px solid var(--gray-200); page-break-inside: avoid; }
+    .stat-card { box-shadow: none; border: 1px solid var(--gray-200); page-break-inside: avoid; }
+    .tbl tr { page-break-inside: avoid; }
+    .canvas-wrap { page-break-inside: avoid; }
+    body { background: white; }
+    @page { margin: 1.5cm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="edit-banner">✏️ 편집 모드 — 셀을 클릭하면 바로 수정할 수 있습니다. 변경사항은 자동 저장됩니다.</div>
+<header class="app-header">
+  <h1>🏭 PP/PE 레진 구매 관리 시스템</h1>
+  <div class="header-btns">
+    <div class="header-meta" id="lastUpdatedLabel">로딩 중...</div>
+    <button class="header-btn" id="editBtn" onclick="toggleEdit()">✏️ 편집 모드</button>
+    <button class="header-btn" onclick="exportJSON()">📥 내보내기</button>
+    <button class="header-btn" id="resetBtn" onclick="resetData()" style="display:none">🔄 초기화</button>
+  </div>
+</header>
+
+<nav class="nav-tabs" id="navTabs">
+  <div class="nav-tab active" onclick="switchTab('dashboard',this)">📊 대시보드</div>
+  <div class="nav-tab" onclick="switchTab('nego',this)">💬 단가 네고 <span class="tab-badge" id="badge-nego">0</span></div>
+  <div class="nav-tab" onclick="switchTab('contract',this)">📝 계약 관리</div>
+  <div class="nav-tab" onclick="switchTab('shipment',this)">🚢 선적·운송</div>
+  <div class="nav-tab" onclick="switchTab('customs',this)">🏛 통관·배차</div>
+  <div class="nav-tab" onclick="switchTab('inventory',this)">📦 재고 현황</div>
+  <div class="nav-tab" onclick="switchTab('history',this)">📈 품목 이력</div>
+</nav>
+
+<div class="content">
+
+<!-- ===================== TAB 1: DASHBOARD ===================== -->
+<div class="tab-panel active" id="tab-dashboard">
+  <div class="grid-4" id="dashStats" style="margin-bottom:16px"></div>
+  <div class="card">
+    <div class="card-title">⚠️ 긴급 알림</div>
+    <div id="dashAlerts"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔄 오더별 진행 단계</div>
+    <div id="dashOrderFlow"></div>
+  </div>
+</div>
+
+<!-- ===================== TAB 2: NEGO ===================== -->
+<div class="tab-panel" id="tab-nego">
+  <div class="card">
+    <div class="card-title">📦 품목별 네고 현황</div>
+    <div id="negoProductSummary"></div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">📋 오더별 네고 상세 <span style="font-size:12px;font-weight:400;color:var(--gray-600);margin-left:6px">▼ 클릭하면 상세 펼침</span></div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>오더번호</th><th>품목</th><th>공급사</th><th>수량(MT)</th>
+        <th>오퍼가</th><th>카운터가</th><th>계약가</th><th>시장가(ICIS)</th><th>절감액</th><th>상태</th><th>액션</th>
+      </tr></thead>
+      <tbody id="negoTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">📊 품목별 오퍼가 vs 계약가</div>
+    <div class="canvas-wrap"><canvas id="chartNego"></canvas></div>
+  </div>
+</div>
+
+<!-- ===================== TAB 3: CONTRACT ===================== -->
+<div class="tab-panel" id="tab-contract">
+  <div class="card">
+    <div class="card-title">📦 품목별 계약 현황</div>
+    <div id="contractProductSummary"></div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">📋 계약 상세 내역</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>계약번호</th><th>품목/등급</th><th>공급사</th><th>수량(MT)</th>
+        <th>계약가(USD/MT)</th><th>결제조건</th><th>인도조건</th><th>납기월</th><th>계약일</th><th>진행단계</th>
+      </tr></thead>
+      <tbody id="contractTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 4: SHIPMENT ===================== -->
+<div class="tab-panel" id="tab-shipment">
+  <div class="card">
+    <div class="card-title">⚡ 통관 임박 — 입항 예정 건 <span style="font-size:12px;font-weight:400;color:var(--gray-600);margin-left:6px">ETA 기준 14일 이내</span></div>
+    <div id="shipmentUrgent"></div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">🚢 전체 선적·운송 현황 <span style="font-size:12px;font-weight:400;color:var(--gray-600);margin-left:6px">ETD 임박순 정렬</span></div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>D-day</th><th>오더번호</th><th>품목</th><th>공급사</th><th>선박명</th>
+        <th>B/L No.</th><th>선적항</th><th>도착항</th><th>ETD</th><th>ETA</th><th>상태</th><th>액션</th>
+      </tr></thead>
+      <tbody id="shipmentTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 5: CUSTOMS ===================== -->
+<div class="tab-panel" id="tab-customs">
+  <div class="grid-3" id="customsStats" style="margin-bottom:16px"></div>
+  <div class="card">
+    <div class="card-title">🏛 통관 + 배차 동시 현황</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>오더번호</th><th>품목</th><th>수량(MT)</th>
+        <th>입항일</th><th>신고일</th><th>통관완료일</th><th>통관</th>
+        <th>배차</th><th>배차일</th><th>목적지</th><th>액션</th>
+      </tr></thead>
+      <tbody id="customsTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 6: INVENTORY ===================== -->
+<div class="tab-panel" id="tab-inventory">
+  <div id="invProductCards" style="margin-bottom:16px"></div>
+  <div class="card">
+    <div class="card-title">📦 품목별 재고 현황 (빨간선 = 안전재고 기준)</div>
+    <div id="invList"></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📊 현재고 vs 안전재고</div>
+      <div class="canvas-wrap"><canvas id="chartInvBar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📥 입고 예정 vs 출고 예정</div>
+      <div class="canvas-wrap"><canvas id="chartInvFlow"></canvas></div>
+    </div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">📋 재고 상세 테이블</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>품목</th><th>창고</th><th>현재고(MT)</th><th>안전재고(MT)</th>
+        <th>입고예정(MT)</th><th>출고예정(MT)</th><th>재고 후 예상(MT)</th>
+        <th>일평균사용(MT)</th><th>재고일수(DOI)</th><th>안전재고 대비</th>
+      </tr></thead>
+      <tbody id="invTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 7: HISTORY ===================== -->
+<div class="tab-panel" id="tab-history">
+  <div class="card">
+    <div class="card-title">📈 월별 시장가 추이 (USD/MT)</div>
+    <div class="canvas-wrap" style="height:300px"><canvas id="chartHistory"></canvas></div>
+  </div>
+  <div class="card mt-16">
+    <div class="card-title">📋 오더 이력 전체</div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr>
+        <th>오더번호</th><th>품목</th><th>등급</th><th>공급사</th><th>원산지</th>
+        <th>수량(MT)</th><th>계약가</th><th>시장가</th><th>절감율</th><th>계약일</th><th>단계</th><th>액션</th>
+      </tr></thead>
+      <tbody id="historyTableBody"></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- FAB -->
+<button class="fab" onclick="openOrderModal(-1)">＋ 새 오더</button>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-size:16px;font-weight:700" id="modalTitle">새 오더 추가</span>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray-600);line-height:1">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">취소</button>
+      <button class="btn-primary" onclick="saveOrderModal()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// DATA LOAD & LOCALSTORAGE
+// ─────────────────────────────────────────
+let DATA = null;
+const CHARTS = {};
+const LS_KEY = 'resin_data_v1';
+
+async function saveToLocal() {
+  DATA.lastUpdated = new Date().toISOString().split('T')[0];
+  const label = document.getElementById('lastUpdatedLabel');
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(DATA)
+    });
+    if(res.ok) {
+      label.textContent = '최종 업데이트: ' + DATA.lastUpdated + ' ✓ 저장됨';
+    } else {
+      label.textContent = '⚠️ 저장 실패';
+    }
+  } catch {
+    // Flask 없을 때 localStorage 폴백
+    localStorage.setItem(LS_KEY, JSON.stringify(DATA));
+    label.textContent = '최종 업데이트: ' + DATA.lastUpdated + ' (로컬 저장)';
+  }
+}
+
+function loadFromLocal() {
+  try { const s = localStorage.getItem(LS_KEY); return s ? JSON.parse(s) : null; } catch { return null; }
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'data.json'; a.click();
+}
+
+function resetData() {
+  if(!confirm('수정 내용을 초기화하고 서버의 data.json을 다시 불러올까요?')) return;
+  localStorage.removeItem(LS_KEY); location.reload();
+}
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/data?t=' + Date.now());
+    if(!res.ok) throw new Error();
+    DATA = await res.json(); init();
+  } catch {
+    // Flask 없을 때 localhost:8080 직접 접근 시도
+    try {
+      const res = await fetch('data/data.json?t=' + Date.now());
+      DATA = await res.json(); init();
+    } catch {
+      document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#dc2626"><h2>⚠️ 서버에 연결할 수 없습니다.</h2><p style="margin-top:8px;color:#666">app.py를 실행해주세요: python app.py</p></div>';
+    }
+  }
+}
+
+// ─────────────────────────────────────────
+// EDIT MODE
+// ─────────────────────────────────────────
+let editMode = false;
+
+function toggleEdit() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  document.getElementById('editBtn').textContent = editMode ? '✅ 편집 완료' : '✏️ 편집 모드';
+  document.getElementById('editBtn').classList.toggle('active', editMode);
+  document.getElementById('resetBtn').style.display = editMode ? '' : 'none';
+  init();
+}
+
+function getVal(obj, path) {
+  return path.split('.').reduce((o, k) => o?.[k], obj);
+}
+
+function setVal(obj, path, val) {
+  const parts = path.split('.');
+  const key = parts.pop();
+  const target = parts.reduce((o, k) => o[k], obj);
+  const numFields = ['offerPrice','counterPrice','contractPrice','quantity','currentStock','safetyStock','incomingStock','outgoingPlan','avgDailyUsage','marketRef'];
+  target[key] = numFields.includes(key) ? (val === '' ? null : parseFloat(val)) : val;
+}
+
+function editCell(el, obj, path, type) {
+  if(!editMode) return;
+  const cur = getVal(obj, path) ?? '';
+
+  if(type === 'stage') {
+    showDropdown(el, STAGE_ORDER, val => { setVal(obj, path, val); saveToLocal(); init(); });
+    return;
+  }
+  if(type === 'status') {
+    showDropdown(el, ['대기중','진행중','완료'], val => { setVal(obj, path, val); saveToLocal(); init(); });
+    return;
+  }
+
+  const inp = document.createElement('input');
+  inp.type = type === 'number' ? 'number' : 'text';
+  inp.value = cur;
+  inp.placeholder = type === 'date' ? 'YYYY-MM-DD' : '';
+  inp.style.cssText = 'width:100%;min-width:70px;border:1px solid var(--primary);border-radius:4px;padding:2px 6px;font-size:13px;box-sizing:border-box';
+  el.innerHTML = ''; el.appendChild(inp); inp.focus(); inp.select();
+  const save = () => { setVal(obj, path, inp.value); saveToLocal(); init(); };
+  inp.addEventListener('blur', save);
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') inp.blur(); if(e.key==='Escape') init(); });
+}
+
+// ─────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────
+const STAGE_ORDER = ['네고중','계약완료','발주대기','선적완료','항해중','통관중','배차완료'];
+const STAGE_ICONS = { '네고중':'💬','계약완료':'📝','발주대기':'📦','선적완료':'🚢','항해중':'⛵','통관중':'🏛','배차완료':'✅' };
+
+const ALERT_DAYS = 14;
+const URGENCY_CRITICAL = 3;
+const URGENCY_WARNING = 7;
+const SAFETY_STOCK_WARN_RATIO = 1.2;
+
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+function stageIndex(s) { return STAGE_ORDER.indexOf(s); }
+function fmt(v, unit='') { return v != null && v !== '' ? v + unit : '<span class="empty-val">—</span>'; }
+function fmtDate(d) { return d || '<span class="empty-val">—</span>'; }
+function fmtPrice(v) { return v != null ? '$' + v.toLocaleString() : '<span class="empty-val">—</span>'; }
+function safeStage(s) { return STAGE_ORDER.includes(s) ? s : '네고중'; }
+
+function statusDot(status) {
+  if(status==='완료') return '<span class="dot dot-green"></span>';
+  if(status==='진행중') return '<span class="dot dot-yellow"></span>';
+  if(status==='대기중') return '<span class="dot dot-gray"></span>';
+  return '';
+}
+
+// ─────────────────────────────────────────
+// FLOATING DROPDOWN
+// ─────────────────────────────────────────
+function showDropdown(el, options, onSelect) {
+  document.getElementById('floatDropdown')?.remove();
+  const rect = el.getBoundingClientRect();
+  const div = document.createElement('div');
+  div.id = 'floatDropdown';
+  div.className = 'float-dropdown';
+  const top = Math.min(rect.bottom + 4, window.innerHeight - options.length * 46 - 10);
+  div.style.top = top + 'px';
+  div.style.left = rect.left + 'px';
+  options.forEach(opt => {
+    const item = document.createElement('div');
+    item.className = 'float-dropdown-item';
+    item.textContent = opt;
+    item.addEventListener('mousedown', e => { e.preventDefault(); onSelect(opt); div.remove(); });
+    div.appendChild(item);
+  });
+  document.body.appendChild(div);
+  setTimeout(() => {
+    document.addEventListener('click', function h(e) {
+      if(!div.contains(e.target)) { div.remove(); document.removeEventListener('click', h); }
+    });
+  }, 50);
+}
+
+// ─────────────────────────────────────────
+// ORDER MODAL
+// ─────────────────────────────────────────
+let modalIdx = -1;
+const PRODUCTS = ['PP Homo','PP Copo','HDPE','LDPE','LLDPE'];
+const STATUSES = ['대기중','진행중','완료'];
+
+function openOrderModal(idx) {
+  modalIdx = idx;
+  document.getElementById('modalTitle').textContent = idx === -1 ? '새 오더 추가' : '오더 수정';
+  const o = idx === -1 ? {
+    id: 'ORD-2026-' + String(DATA.orders.length + 1).padStart(3,'0'),
+    product:'PP Homo', grade:'', supplier:'', origin:'', quantity:0, unit:'MT', stage:'네고중',
+    negotiation:{ status:'진행중', offerPrice:null, counterPrice:null, contractPrice:null, currency:'USD/MT', marketRef:null, date:'' },
+    contract:{ contractNo:'', signDate:'', paymentTerms:'', incoterms:'CFR Busan', deliveryMonth:'' },
+    shipment:{ vessel:'', blNo:'', etd:'', eta:'', portOfLoading:'', portOfDischarge:'' },
+    customs:{ arrivalDate:'', declarationDate:'', clearanceDate:'', status:'대기중' },
+    dispatch:{ status:'대기중', date:'', destination:'' }
+  } : JSON.parse(JSON.stringify(DATA.orders[idx]));
+  document.getElementById('modalBody').innerHTML = buildModalForm(o);
+  document.getElementById('orderModal').style.display = 'block';
+}
+
+function fld(label, name, val, type='text', opts=null) {
+  const input = opts
+    ? `<select name="${name}">${opts.map(o=>`<option value="${o}"${o==val?' selected':''}>${o}</option>`).join('')}</select>`
+    : `<input type="${type==='number'?'number':'text'}" name="${name}" value="${val??''}" placeholder="${type==='date'?'YYYY-MM-DD':''}">`;
+  return `<div class="form-field"><label>${label}</label>${input}</div>`;
+}
+
+function buildModalForm(o) {
+  const sec = (icon, title, fields) =>
+    `<div class="modal-section"><div class="modal-section-title">${icon} ${title}</div><div class="modal-grid">${fields}</div></div>`;
+  return sec('📦','기본정보',
+    fld('오더번호','id',o.id) +
+    fld('품목','product',o.product,'text',PRODUCTS) +
+    fld('등급','grade',o.grade) +
+    fld('공급사','supplier',o.supplier) +
+    fld('원산지','origin',o.origin) +
+    fld('수량 (MT)','quantity',o.quantity,'number') +
+    fld('단계','stage',o.stage,'text',STAGE_ORDER)
+  ) + sec('💬','단가 네고',
+    fld('오퍼가 (USD/MT)','neg_offerPrice',o.negotiation.offerPrice,'number') +
+    fld('카운터가 (USD/MT)','neg_counterPrice',o.negotiation.counterPrice,'number') +
+    fld('계약가 (USD/MT)','neg_contractPrice',o.negotiation.contractPrice,'number') +
+    fld('시장가 (ICIS)','neg_marketRef',o.negotiation.marketRef,'number') +
+    fld('협상상태','neg_status',o.negotiation.status,'text',['진행중','완료']) +
+    fld('네고일','neg_date',o.negotiation.date,'date')
+  ) + sec('📝','계약',
+    fld('계약번호','con_contractNo',o.contract.contractNo) +
+    fld('계약일','con_signDate',o.contract.signDate,'date') +
+    fld('결제조건','con_paymentTerms',o.contract.paymentTerms) +
+    fld('인도조건','con_incoterms',o.contract.incoterms) +
+    fld('납기월 (YYYY-MM)','con_deliveryMonth',o.contract.deliveryMonth)
+  ) + sec('🚢','선적',
+    fld('선박명','shp_vessel',o.shipment.vessel) +
+    fld('B/L No.','shp_blNo',o.shipment.blNo) +
+    fld('ETD','shp_etd',o.shipment.etd,'date') +
+    fld('ETA','shp_eta',o.shipment.eta,'date') +
+    fld('선적항','shp_pol',o.shipment.portOfLoading) +
+    fld('도착항','shp_pod',o.shipment.portOfDischarge)
+  ) + sec('🏛','통관',
+    fld('입항일','cus_arrival',o.customs.arrivalDate,'date') +
+    fld('신고일','cus_declaration',o.customs.declarationDate,'date') +
+    fld('통관완료일','cus_clearance',o.customs.clearanceDate,'date') +
+    fld('통관상태','cus_status',o.customs.status,'text',STATUSES)
+  ) + sec('🚛','배차',
+    fld('배차상태','dis_status',o.dispatch.status,'text',STATUSES) +
+    fld('배차일','dis_date',o.dispatch.date,'date') +
+    fld('목적지','dis_dest',o.dispatch.destination)
+  );
+}
+
+function gv(name, num=false) {
+  const el = document.querySelector(`[name="${name}"]`);
+  if(!el) return null;
+  const v = el.value.trim();
+  return num ? (v===''?null:parseFloat(v)) : v;
+}
+
+function saveOrderModal() {
+  const o = {
+    id:gv('id'), product:gv('product'), grade:gv('grade'), supplier:gv('supplier'),
+    origin:gv('origin'), quantity:gv('quantity',true), unit:'MT', stage:gv('stage'),
+    negotiation:{ status:gv('neg_status'), offerPrice:gv('neg_offerPrice',true),
+      counterPrice:gv('neg_counterPrice',true), contractPrice:gv('neg_contractPrice',true),
+      currency:'USD/MT', marketRef:gv('neg_marketRef',true), date:gv('neg_date') },
+    contract:{ contractNo:gv('con_contractNo'), signDate:gv('con_signDate'),
+      paymentTerms:gv('con_paymentTerms'), incoterms:gv('con_incoterms'), deliveryMonth:gv('con_deliveryMonth') },
+    shipment:{ vessel:gv('shp_vessel'), blNo:gv('shp_blNo'), etd:gv('shp_etd'),
+      eta:gv('shp_eta'), portOfLoading:gv('shp_pol'), portOfDischarge:gv('shp_pod') },
+    customs:{ arrivalDate:gv('cus_arrival'), declarationDate:gv('cus_declaration'),
+      clearanceDate:gv('cus_clearance'), status:gv('cus_status') },
+    dispatch:{ status:gv('dis_status'), date:gv('dis_date'), destination:gv('dis_dest') }
+  };
+  if(modalIdx === -1) DATA.orders.push(o);
+  else DATA.orders[modalIdx] = o;
+  saveToLocal();
+  closeModal();
+  init();
+}
+
+function deleteOrder(idx) {
+  const o = DATA.orders[idx];
+  if(!confirm(`${o.id} (${o.product}) 오더를 삭제할까요?`)) return;
+  DATA.orders.splice(idx, 1);
+  saveToLocal();
+  init();
+}
+
+function closeModal() {
+  document.getElementById('orderModal').style.display = 'none';
+}
+
+// ─────────────────────────────────────────
+// TAB SWITCH
+// ─────────────────────────────────────────
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ─────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────
+function renderDashboard() {
+  const orders = DATA.orders;
+  const stageCounts = {};
+  STAGE_ORDER.forEach(s => stageCounts[s] = 0);
+  orders.forEach(o => { if(stageCounts[o.stage] !== undefined) stageCounts[o.stage]++; });
+
+  const inProgress = orders.filter(o => o.stage !== '배차완료').length;
+  const done = orders.filter(o => o.stage === '배차완료').length;
+  const nego = orders.filter(o => o.stage === '네고중').length;
+  const transit = orders.filter(o => ['선적완료','항해중'].includes(o.stage)).length;
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card"><div class="stat-icon" style="background:#e0e7ff">📋</div>
+      <div><div class="stat-label">전체 오더</div><div class="stat-value">${orders.length}</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#fef3c7">💬</div>
+      <div><div class="stat-label">네고 진행중</div><div class="stat-value">${nego}</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#cffafe">⛵</div>
+      <div><div class="stat-label">해상 운송중</div><div class="stat-value">${transit}</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">✅</div>
+      <div><div class="stat-label">배차 완료</div><div class="stat-value">${done}</div><div class="stat-sub">건</div></div></div>
+  `;
+
+  // Alerts
+  const alerts = [];
+  DATA.inventory.forEach(inv => {
+    if(inv.currentStock < inv.safetyStock) {
+      alerts.push({ type:'danger', msg:`⚠️ <b>${inv.product}</b> 현재고(${inv.currentStock}MT)가 안전재고(${inv.safetyStock}MT) 미달입니다.` });
+    }
+  });
+  orders.forEach(o => {
+    if(o.stage === '항해중' && o.shipment.eta) {
+      const days = Math.ceil((new Date(o.shipment.eta) - TODAY) / 86400000);
+      if(days <= ALERT_DAYS && days >= 0) {
+        alerts.push({ type:'info', msg:`🚢 <b>${o.id}</b> (${o.product}) ETA ${o.shipment.eta} — ${days}일 후 입항 예정` });
+      }
+    }
+    if(o.stage === '통관중') {
+      alerts.push({ type:'warning', msg:`🏛 <b>${o.id}</b> (${o.product}) 통관 진행 중 — 완료 확인 필요` });
+    }
+  });
+  if(!alerts.length) alerts.push({ type:'success', msg:'✅ 현재 긴급 알림이 없습니다.' });
+
+  document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
+    `<div class="alert alert-${a.type}">${a.msg}</div>`
+  ).join('');
+
+  // Order flow stepper
+  if(!orders.length) {
+    document.getElementById('dashOrderFlow').innerHTML = '<div class="empty-state"><span>📭</span>등록된 오더가 없습니다.</div>';
+    return;
+  }
+  const flowHtml = orders.map(o => {
+    const si = stageIndex(o.stage);
+    const steps = STAGE_ORDER.map((s, i) => {
+      const cls = i < si ? 'done' : i === si ? 'active' : '';
+      return `<div class="step"><div class="step-dot ${cls}"></div><div class="step-label">${s}</div></div>` +
+             (i < STAGE_ORDER.length-1 ? `<div class="step-line ${i < si ? 'done' : ''}"></div>` : '');
+    }).join('');
+    return `<div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span class="fw-600">${o.id}</span>
+        <span>${o.product} · ${o.supplier} · ${o.quantity}MT</span>
+        <span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="action-btn action-btn-edit" onclick="openOrderModal(${DATA.orders.indexOf(o)})">✏️ 수정</button>
+          <button class="action-btn action-btn-del" onclick="deleteOrder(${DATA.orders.indexOf(o)})">🗑 삭제</button>
+        </span>
+      </div>
+      <div class="stepper">${steps}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('dashOrderFlow').innerHTML = flowHtml;
+
+}
+
+// ─────────────────────────────────────────
+// NEGO TAB
+// ─────────────────────────────────────────
+function renderNego() {
+  if(!DATA.orders.length) {
+    document.getElementById('negoProductSummary').innerHTML = '<div class="empty-state"><span>📭</span>네고 중인 오더가 없습니다.</div>';
+    document.getElementById('negoTableBody').innerHTML = '';
+    return;
+  }
+  // 1) 품목별 요약 카드
+  const products = [...new Set(DATA.orders.map(o => o.product))];
+  const summaryHtml = `<div class="grid-3">${products.map(p => {
+    const orders = DATA.orders.filter(o => o.product === p);
+    const contracted = orders.filter(o => o.negotiation.contractPrice);
+    const avgOffer = contracted.length ? Math.round(contracted.reduce((s,o) => s + o.negotiation.offerPrice, 0) / contracted.length) : null;
+    const avgContract = contracted.length ? Math.round(contracted.reduce((s,o) => s + o.negotiation.contractPrice, 0) / contracted.length) : null;
+    const avgMarket = contracted.length ? Math.round(contracted.reduce((s,o) => s + o.negotiation.marketRef, 0) / contracted.length) : null;
+    const totalQty = orders.reduce((s,o) => s + o.quantity, 0);
+    const hasActive = orders.some(o => o.negotiation.status === '진행중');
+    const saving = avgOffer && avgContract ? avgOffer - avgContract : null;
+    return `<div class="card" style="margin-bottom:0;border:2px solid ${hasActive ? 'var(--warning)' : 'var(--gray-200)'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span class="fw-600" style="font-size:15px">${p}</span>
+        ${hasActive ? '<span class="stage-badge stage-네고중">네고중</span>' : '<span class="stage-badge stage-계약완료">완료</span>'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div><span style="color:var(--gray-600)">총 수량</span><br><b>${totalQty.toLocaleString()} MT</b></div>
+        <div><span style="color:var(--gray-600)">오더 수</span><br><b>${orders.length}건</b></div>
+        <div><span style="color:var(--gray-600)">평균 오퍼가</span><br><b>${avgOffer ? '$'+avgOffer : '—'}</b></div>
+        <div><span style="color:var(--gray-600)">평균 계약가</span><br><b style="color:var(--success)">${avgContract ? '$'+avgContract : '—'}</b></div>
+        <div><span style="color:var(--gray-600)">ICIS 시장가</span><br><b>${avgMarket ? '$'+avgMarket : '—'}</b></div>
+        <div><span style="color:var(--gray-600)">절감액</span><br><b class="${saving > 0 ? 'price-good' : ''}">${saving ? '-$'+saving : '—'}</b></div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  document.getElementById('negoProductSummary').innerHTML = summaryHtml;
+
+  // 2) 오더별 상세 테이블
+  const rows = DATA.orders.map((o, di) => {
+    const n = o.negotiation;
+    const saving = n.offerPrice && n.contractPrice ? n.offerPrice - n.contractPrice : null;
+    const savingPct = saving && n.offerPrice > 0 ? ((saving / n.offerPrice)*100).toFixed(1) : null;
+    const ec = editMode ? 'editable-cell' : '';
+    return `<tr>
+      <td class="fw-600">${o.id}</td>
+      <td>${o.product} <span class="chip">${o.grade}</span></td>
+      <td>${o.supplier}</td>
+      <td class="text-right">${o.quantity.toLocaleString()}</td>
+      <td class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.offerPrice','number')">${fmtPrice(n.offerPrice)}</td>
+      <td class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.counterPrice','number')">${fmtPrice(n.counterPrice)}</td>
+      <td class="text-right fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.contractPrice','number')">${fmtPrice(n.contractPrice)}</td>
+      <td class="text-right">${fmtPrice(n.marketRef)}</td>
+      <td class="text-right">${saving != null ? `<span class="${saving>0?'price-good':'price-bad'}">-$${saving} (${savingPct}%)</span>` : '—'}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.status','status')"><span class="stage-badge stage-${safeStage(o.stage)}">${o.negotiation.status}</span></td>
+      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('negoTableBody').innerHTML = rows;
+
+  // Badge
+  const active = DATA.orders.filter(o => o.negotiation.status === '진행중').length;
+  document.getElementById('badge-nego').textContent = active;
+
+  // 3) 차트
+  if(CHARTS.nego) CHARTS.nego.destroy();
+  const ctx = document.getElementById('chartNego').getContext('2d');
+  CHARTS.nego = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: DATA.orders.map(o => o.product + ' (' + o.id + ')'),
+      datasets: [
+        { label: '오퍼가', data: DATA.orders.map(o => o.negotiation.offerPrice), backgroundColor: 'rgba(239,68,68,0.6)', borderColor: '#ef4444', borderWidth: 1 },
+        { label: '카운터가', data: DATA.orders.map(o => o.negotiation.counterPrice), backgroundColor: 'rgba(251,146,60,0.6)', borderColor: '#f97316', borderWidth: 1 },
+        { label: '계약가', data: DATA.orders.map(o => o.negotiation.contractPrice ?? null), backgroundColor: 'rgba(34,197,94,0.6)', borderColor: '#22c55e', borderWidth: 1, spanGaps: false },
+        { label: 'ICIS 시장가', data: DATA.orders.map(o => o.negotiation.marketRef), backgroundColor: 'rgba(99,102,241,0.6)', borderColor: '#6366f1', borderWidth: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: false, title: { display: true, text: 'USD/MT' } } }
+    }
+  });
+}
+
+// ─────────────────────────────────────────
+// CONTRACT TAB
+// ─────────────────────────────────────────
+function renderContract() {
+  if(!DATA.orders.length) {
+    document.getElementById('contractProductSummary').innerHTML = '<div class="empty-state"><span>📝</span>계약 데이터가 없습니다.</div>';
+    document.getElementById('contractTableBody').innerHTML = '';
+    return;
+  }
+  // 1) 품목별 요약
+  const products = [...new Set(DATA.orders.map(o => o.product))];
+  const summaryHtml = `<div style="overflow-x:auto"><table class="tbl">
+    <thead><tr>
+      <th>품목</th><th>계약 건수</th><th>총 수량(MT)</th><th>평균 계약가</th><th>납기월</th><th>결제조건</th><th>진행 단계</th>
+    </tr></thead>
+    <tbody>${products.map(p => {
+      const orders = DATA.orders.filter(o => o.product === p);
+      const contracted = orders.filter(o => o.negotiation.contractPrice);
+      const totalQty = orders.reduce((s,o) => s + o.quantity, 0);
+      const avgPrice = contracted.length ? Math.round(contracted.reduce((s,o) => s + o.negotiation.contractPrice, 0) / contracted.length) : null;
+      const months = [...new Set(orders.filter(o=>o.contract.deliveryMonth).map(o=>o.contract.deliveryMonth))].join(', ');
+      const payTerms = [...new Set(orders.filter(o=>o.contract.paymentTerms).map(o=>o.contract.paymentTerms))].join(' / ');
+      const stages = [...new Set(orders.map(o=>o.stage))];
+      return `<tr>
+        <td class="fw-600">${p}</td>
+        <td class="text-center">${orders.length}건</td>
+        <td class="text-right fw-600">${totalQty.toLocaleString()}</td>
+        <td class="text-right">${avgPrice ? '<b>$'+avgPrice+'</b>' : '—'}</td>
+        <td>${months || '—'}</td>
+        <td>${payTerms || '—'}</td>
+        <td>${stages.map(s => `<span class="stage-badge stage-${safeStage(s)}">${STAGE_ICONS[safeStage(s)]} ${s}</span>`).join(' ')}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+  document.getElementById('contractProductSummary').innerHTML = summaryHtml;
+
+  // 2) 상세 테이블
+  const rows = DATA.orders.map(o => {
+    const c = o.contract;
+    return `<tr>
+      <td class="fw-600">${c.contractNo || '<span class="empty-val">미정</span>'}</td>
+      <td>${o.product} <span class="chip">${o.grade}</span></td>
+      <td>${o.supplier}</td>
+      <td class="text-right">${o.quantity.toLocaleString()}</td>
+      <td class="text-right fw-600">${fmtPrice(o.negotiation.contractPrice)}</td>
+      <td>${c.paymentTerms || '<span class="empty-val">—</span>'}</td>
+      <td>${c.incoterms || '<span class="empty-val">—</span>'}</td>
+      <td>${c.deliveryMonth || '<span class="empty-val">—</span>'}</td>
+      <td>${fmtDate(c.signDate)}</td>
+      <td><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('contractTableBody').innerHTML = rows;
+}
+
+// ─────────────────────────────────────────
+// SHIPMENT TAB
+// ─────────────────────────────────────────
+function renderShipment() {
+
+  // 1) 통관 임박 섹션 (ETA 14일 이내, 항해중·선적완료)
+  const urgent = DATA.orders
+    .filter(o => o.shipment.eta && ['선적완료','항해중'].includes(o.stage))
+    .map(o => ({ ...o, etaDays: Math.ceil((new Date(o.shipment.eta) - TODAY) / 86400000) }))
+    .filter(o => o.etaDays <= 14)
+    .sort((a,b) => a.etaDays - b.etaDays);
+
+  const urgentHtml = urgent.length ? urgent.map(o => {
+    const color = o.etaDays <= URGENCY_CRITICAL ? 'var(--danger)' : o.etaDays <= URGENCY_WARNING ? 'var(--warning)' : 'var(--info)';
+    return `<div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--gray-100)">
+      <div style="min-width:60px;text-align:center;background:${color};color:white;border-radius:8px;padding:6px 10px;font-weight:700;font-size:15px">D-${o.etaDays}</div>
+      <div style="flex:1">
+        <div class="fw-600">${o.id} · ${o.product} <span class="chip">${o.grade}</span></div>
+        <div style="font-size:12px;color:var(--gray-600);margin-top:3px">
+          ${o.supplier} · ${o.shipment.vessel || '선박 미정'} · ${o.shipment.portOfLoading || '—'} → ${o.shipment.portOfDischarge || '—'}
+        </div>
+      </div>
+      <div style="text-align:right;font-size:12px">
+        <div>ETD <b>${o.shipment.etd}</b></div>
+        <div style="color:${color}">ETA <b>${o.shipment.eta}</b></div>
+      </div>
+      <span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span>
+    </div>`;
+  }).join('') : '<div class="alert alert-success">✅ 14일 내 입항 예정 건이 없습니다.</div>';
+  document.getElementById('shipmentUrgent').innerHTML = urgentHtml;
+
+  // 2) 전체 테이블 — ETD 임박순 정렬 (ETD 있는 것 먼저, 없는 것 뒤로)
+  const sorted = [...DATA.orders].sort((a, b) => {
+    if (!a.shipment.etd && !b.shipment.etd) return 0;
+    if (!a.shipment.etd) return 1;
+    if (!b.shipment.etd) return -1;
+    return a.shipment.etd.localeCompare(b.shipment.etd);
+  });
+
+  const rows = sorted.map(o => {
+    const s = o.shipment;
+    const etdDays = s.etd ? Math.ceil((new Date(s.etd) - TODAY) / 86400000) : null;
+    const dTag = etdDays !== null
+      ? `<span style="font-weight:700;color:${etdDays<=7?'var(--danger)':etdDays<=14?'var(--warning)':'var(--gray-600)'}">${etdDays >= 0 ? 'D-'+etdDays : '출항완료'}</span>`
+      : '<span class="empty-val">—</span>';
+    const dim = !s.etd && !s.vessel ? 'opacity:0.45' : '';
+    const ec = editMode ? 'editable-cell' : '';
+    const di = DATA.orders.indexOf(o);
+    return `<tr style="${dim}">
+      <td>${dTag}</td>
+      <td class="fw-600">${o.id}</td>
+      <td>${o.product}</td>
+      <td>${o.supplier}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.vessel','text')">${s.vessel || '<span class="empty-val">미정</span>'}</td>
+      <td style="font-size:12px" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.blNo','text')">${s.blNo || '<span class="empty-val">—</span>'}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfLoading','text')">${s.portOfLoading || '<span class="empty-val">—</span>'}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfDischarge','text')">${s.portOfDischarge || '<span class="empty-val">—</span>'}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.etd','date')">${fmtDate(s.etd)}</td>
+      <td class="fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.eta','date')">${fmtDate(s.eta)}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'stage','stage')"><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('shipmentTableBody').innerHTML = rows;
+}
+
+// ─────────────────────────────────────────
+// CUSTOMS TAB
+// ─────────────────────────────────────────
+function renderCustoms() {
+  if(!DATA.orders.length) {
+    document.getElementById('customsTableBody').innerHTML = '<tr><td colspan="10" class="empty-state"><span>🏛</span>통관 데이터가 없습니다.</td></tr>';
+    return;
+  }
+  // 상단 스탯
+  const arrived = DATA.orders.filter(o => o.customs.arrivalDate).length;
+  const inClearance = DATA.orders.filter(o => o.customs.status === '진행중').length;
+  const dispatched = DATA.orders.filter(o => o.dispatch.status === '완료').length;
+  document.getElementById('customsStats').innerHTML = `
+    <div class="stat-card"><div class="stat-icon" style="background:#dbeafe">⚓</div>
+      <div><div class="stat-label">입항 완료</div><div class="stat-value">${arrived}</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#fef9c3">🏛</div>
+      <div><div class="stat-label">통관 진행중</div><div class="stat-value">${inClearance}</div><div class="stat-sub">건</div></div></div>
+    <div class="stat-card"><div class="stat-icon" style="background:#dcfce7">🚛</div>
+      <div><div class="stat-label">배차 완료</div><div class="stat-value">${dispatched}</div><div class="stat-sub">건</div></div></div>
+  `;
+
+  // 통관 진행 중인 건 먼저, 나머지는 입항일 순
+  const sorted = [...DATA.orders].sort((a,b) => {
+    const priority = s => s.customs.status === '진행중' ? 0 : s.customs.arrivalDate ? 1 : 2;
+    return priority(a) - priority(b);
+  });
+
+  const rows = sorted.map(o => {
+    const c = o.customs;
+    const d = o.dispatch;
+    const cBadgeClass = c.status==='완료' ? 'stage-배차완료' : c.status==='진행중' ? 'stage-통관중' : 'stage-네고중';
+    const dBadgeClass = d.status==='완료' ? 'stage-배차완료' : 'stage-네고중';
+    const rowBg = c.status==='진행중' ? 'background:#fffbeb' : '';
+    const ec = editMode ? 'editable-cell' : '';
+    const di = DATA.orders.indexOf(o);
+    return `<tr style="${rowBg}">
+      <td class="fw-600">${o.id}</td>
+      <td>${o.product}</td>
+      <td class="text-right">${o.quantity.toLocaleString()}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.arrivalDate','date')">${fmtDate(c.arrivalDate)}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.declarationDate','date')">${fmtDate(c.declarationDate)}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.clearanceDate','date')">${fmtDate(c.clearanceDate)}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.status','status')">${statusDot(c.status)}<span class="stage-badge ${cBadgeClass}">${c.status}</span></td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.status','status')">${statusDot(d.status)}<span class="stage-badge ${dBadgeClass}">${d.status}</span></td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.date','date')">${fmtDate(d.date)}</td>
+      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.destination','text')">${d.destination || '<span class="empty-val">—</span>'}</td>
+      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('customsTableBody').innerHTML = rows;
+}
+
+// ─────────────────────────────────────────
+// INVENTORY TAB
+// ─────────────────────────────────────────
+function renderInventory() {
+  const inv = DATA.inventory;
+  if(!inv.length) {
+    document.getElementById('invProductCards').innerHTML = '<div class="empty-state"><span>📦</span>재고 데이터가 없습니다.</div>';
+    document.getElementById('invList').innerHTML = '';
+    document.getElementById('invTableBody').innerHTML = '';
+    return;
+  }
+
+  // 품목별 개별 카드 (전체 현재고 제거)
+  const productCards = `<div class="grid-3" style="gap:12px">${inv.map(i => {
+    const belowSafety = i.currentStock < i.safetyStock;
+    const borderColor = belowSafety ? 'var(--danger)' : i.currentStock < i.safetyStock * SAFETY_STOCK_WARN_RATIO ? 'var(--warning)' : 'var(--gray-200)';
+    const doi = i.avgDailyUsage > 0 ? (i.currentStock / i.avgDailyUsage).toFixed(0) : '∞';
+    return `<div class="stat-card" style="border:2px solid ${borderColor};flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+        <span class="fw-600" style="font-size:14px">${i.product}</span>
+        ${belowSafety ? '<span class="stage-badge stage-네고중">⚠️ 안전재고 미달</span>' : '<span class="stage-badge stage-배차완료">정상</span>'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%;font-size:12px">
+        <div><div style="color:var(--gray-600)">현재고</div><div style="font-size:18px;font-weight:700;color:${belowSafety?'var(--danger)':'var(--gray-800)'}">${i.currentStock}</div><div style="color:var(--gray-600)">MT</div></div>
+        <div><div style="color:var(--gray-600)">안전재고</div><div style="font-size:18px;font-weight:700;color:var(--danger)">${i.safetyStock}</div><div style="color:var(--gray-600)">MT</div></div>
+        <div><div style="color:var(--gray-600)">재고일수</div><div style="font-size:18px;font-weight:700">${doi}</div><div style="color:var(--gray-600)">일</div></div>
+      </div>
+      <div style="display:flex;gap:10px;font-size:11px;color:var(--gray-600);width:100%">
+        <span>📥 입고예정 <b style="color:var(--success)">${i.incomingStock}MT</b></span>
+        <span>📤 출고예정 <b style="color:var(--warning)">${i.outgoingPlan}MT</b></span>
+        <span style="margin-left:auto">${i.location}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  document.getElementById('invProductCards').innerHTML = productCards;
+
+  // Bar visualization
+  const maxVal = Math.max(...inv.map(i => Math.max(i.currentStock, i.safetyStock, i.incomingStock)));
+  const listHtml = inv.map(i => {
+    const pct = Math.min((i.currentStock / maxVal) * 100, 100);
+    const safetyPct = Math.min((i.safetyStock / maxVal) * 100, 100);
+    const barColor = i.currentStock < i.safetyStock ? 'var(--danger)' : i.currentStock < i.safetyStock * SAFETY_STOCK_WARN_RATIO ? 'var(--warning)' : 'var(--primary-light)';
+    const doiVal = i.avgDailyUsage > 0 ? (i.currentStock / i.avgDailyUsage).toFixed(0) : '∞';
+    return `<div style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="fw-600">${i.product}</span>
+        <span style="font-size:12px;color:var(--gray-600)">${i.location}</span>
+        <span style="font-size:13px"><b style="color:${barColor}">${i.currentStock.toLocaleString()} MT</b> <span style="color:var(--gray-600)">/ 안전재고 ${i.safetyStock} MT · DOI ${doiVal}일</span></span>
+      </div>
+      <div class="inv-bar-track">
+        <div class="inv-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        <div class="inv-bar-safety" style="left:${safetyPct}%" title="안전재고 ${i.safetyStock}MT"></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:5px;font-size:11px;color:var(--gray-600)">
+        <span>📥 입고예정 <b>${i.incomingStock}MT</b></span>
+        <span>📤 출고예정 <b>${i.outgoingPlan}MT</b></span>
+        <span>🔮 예상잔고 <b>${(i.currentStock + i.incomingStock - i.outgoingPlan).toLocaleString()}MT</b></span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('invList').innerHTML = listHtml;
+
+  // Chart: current vs safety
+  if(CHARTS.invBar) CHARTS.invBar.destroy();
+  const ctx1 = document.getElementById('chartInvBar').getContext('2d');
+  CHARTS.invBar = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: inv.map(i => i.product),
+      datasets: [
+        { label: '현재고', data: inv.map(i => i.currentStock), backgroundColor: inv.map(i => i.currentStock < i.safetyStock ? 'rgba(239,68,68,0.7)' : 'rgba(59,130,246,0.7)'), borderWidth: 1 },
+        { label: '안전재고', data: inv.map(i => i.safetyStock), backgroundColor: 'rgba(239,68,68,0.15)', borderColor: '#ef4444', borderWidth: 2, borderDash: [4,4] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'MT' } } }
+    }
+  });
+
+  // Chart: incoming vs outgoing
+  if(CHARTS.invFlow) CHARTS.invFlow.destroy();
+  const ctx2 = document.getElementById('chartInvFlow').getContext('2d');
+  CHARTS.invFlow = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: inv.map(i => i.product),
+      datasets: [
+        { label: '입고 예정', data: inv.map(i => i.incomingStock), backgroundColor: 'rgba(34,197,94,0.7)', borderWidth: 1 },
+        { label: '출고 예정', data: inv.map(i => i.outgoingPlan), backgroundColor: 'rgba(251,146,60,0.7)', borderWidth: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'MT' } } }
+    }
+  });
+
+  // Table
+  const rows = inv.map((i, ii) => {
+    const projected = i.currentStock + i.incomingStock - i.outgoingPlan;
+    const doi = i.avgDailyUsage > 0 ? (i.currentStock / i.avgDailyUsage).toFixed(1) : '∞';
+    const diff = i.currentStock - i.safetyStock;
+    const ec = editMode ? 'editable-cell' : '';
+    return `<tr>
+      <td class="fw-600">${i.product}</td>
+      <td>${i.location}</td>
+      <td class="text-right fw-600 ${ec}" style="color:${i.currentStock<i.safetyStock?'var(--danger)':'inherit'}" onclick="editCell(this,DATA.inventory[${ii}],'currentStock','number')">${i.currentStock.toLocaleString()}</td>
+      <td class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'safetyStock','number')">${i.safetyStock.toLocaleString()}</td>
+      <td class="text-right ${ec}" style="color:var(--success)" onclick="editCell(this,DATA.inventory[${ii}],'incomingStock','number')">${i.incomingStock.toLocaleString()}</td>
+      <td class="text-right ${ec}" style="color:var(--warning)" onclick="editCell(this,DATA.inventory[${ii}],'outgoingPlan','number')">${i.outgoingPlan.toLocaleString()}</td>
+      <td class="text-right fw-600">${projected.toLocaleString()}</td>
+      <td class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'avgDailyUsage','number')">${i.avgDailyUsage}</td>
+      <td class="text-right">${doi}일</td>
+      <td class="text-right"><span class="${diff>=0?'price-good':'price-bad'}">${diff>=0?'+':''}${diff}MT</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('invTableBody').innerHTML = rows;
+}
+
+// ─────────────────────────────────────────
+// HISTORY TAB
+// ─────────────────────────────────────────
+function renderHistory() {
+  const mp = DATA.marketPrices;
+  if(CHARTS.history) CHARTS.history.destroy();
+  const ctx = document.getElementById('chartHistory').getContext('2d');
+  const colors = { ppHomo:'#3b82f6', ppCopo:'#8b5cf6', hdpe:'#22c55e', ldpe:'#f59e0b', lldpe:'#ef4444', naphtha:'#6b7280', brent:'#0891b2' };
+  CHARTS.history = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: mp.map(m => m.month),
+      datasets: [
+        { label: 'PP Homo', data: mp.map(m => m.ppHomo), borderColor: colors.ppHomo, backgroundColor: colors.ppHomo+'20', tension: 0.3, fill: false },
+        { label: 'PP Copo', data: mp.map(m => m.ppCopo), borderColor: colors.ppCopo, backgroundColor: colors.ppCopo+'20', tension: 0.3, fill: false },
+        { label: 'HDPE',    data: mp.map(m => m.hdpe),   borderColor: colors.hdpe,   backgroundColor: colors.hdpe+'20',   tension: 0.3, fill: false },
+        { label: 'LDPE',    data: mp.map(m => m.ldpe),   borderColor: colors.ldpe,   backgroundColor: colors.ldpe+'20',   tension: 0.3, fill: false },
+        { label: 'LLDPE',   data: mp.map(m => m.lldpe),  borderColor: colors.lldpe,  backgroundColor: colors.lldpe+'20',  tension: 0.3, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { title: { display: true, text: 'USD/MT' } } }
+    }
+  });
+
+  if(!DATA.orders.length) {
+    document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="11" class="empty-state"><span>📈</span>오더 이력이 없습니다.</td></tr>';
+    return;
+  }
+  const rows = DATA.orders.map(o => {
+    const n = o.negotiation;
+    const savingPct = n.contractPrice && n.offerPrice ? (((n.offerPrice - n.contractPrice) / n.offerPrice)*100).toFixed(1) : null;
+    return `<tr>
+      <td class="fw-600">${o.id}</td>
+      <td>${o.product}</td>
+      <td><span class="chip">${o.grade}</span></td>
+      <td>${o.supplier}</td>
+      <td>${o.origin}</td>
+      <td class="text-right">${o.quantity.toLocaleString()}</td>
+      <td class="text-right">${fmtPrice(n.contractPrice)}</td>
+      <td class="text-right">${fmtPrice(n.marketRef)}</td>
+      <td class="text-right">${savingPct != null ? `<span class="price-good">-${savingPct}%</span>` : '—'}</td>
+      <td>${fmtDate(o.contract.signDate)}</td>
+      <td><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${DATA.orders.indexOf(o)})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${DATA.orders.indexOf(o)})">🗑</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('historyTableBody').innerHTML = rows;
+}
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+function init() {
+  const hasLocal = !!localStorage.getItem(LS_KEY);
+  document.getElementById('lastUpdatedLabel').textContent = '최종 업데이트: ' + (DATA.lastUpdated || '—') + (hasLocal ? ' ✓' : '');
+  if(!editMode) document.getElementById('resetBtn').style.display = hasLocal ? '' : 'none';
+  renderDashboard();
+  renderNego();
+  renderContract();
+  renderShipment();
+  renderCustoms();
+  renderInventory();
+  renderHistory();
+}
+
+loadData();
+</script>
+</body>
+</html>

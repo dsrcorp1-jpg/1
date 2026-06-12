@@ -1,0 +1,21 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "teammateMode": "in-process",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "powershell -File C:\\Temp\\ai-workshop\\.claude\\hooks\\validate-stage.ps1",
+            "statusMessage": "data.json stage validation..."
+          }
+        ]
+      }
+    ]
+  }
+}

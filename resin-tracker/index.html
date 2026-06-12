@@ -317,6 +317,8 @@
     <button class="header-btn" id="editBtn" onclick="toggleEdit()">✏️ 편집 모드</button>
     <button class="header-btn" onclick="exportJSON()">📥 내보내기</button>
     <button class="header-btn" id="resetBtn" onclick="resetData()" style="display:none">🔄 초기화</button>
+    <button class="header-btn" onclick="downloadExcel()">📊 엑셀</button>
+    <button class="header-btn" onclick="openEmailModal()">📧 알림</button>
   </div>
 </header>
 
@@ -484,6 +486,28 @@
 <!-- FAB -->
 <button class="fab" onclick="openOrderModal(-1)">＋ 새 오더</button>
 
+<!-- Email Modal -->
+<div class="modal-overlay" id="emailModal">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-header">
+      <span style="font-size:16px;font-weight:700">📧 이메일 알림 발송</span>
+      <button onclick="closeEmailModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray-600);line-height:1">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">ETA 14일 이내 입항 예정 건 및 안전재고 미달 품목을 이메일로 발송합니다.</p>
+      <div class="form-field">
+        <label>수신자 이메일</label>
+        <input type="email" id="emailTo" placeholder="example@company.com" style="width:100%;padding:8px 10px;border:1px solid var(--gray-300);border-radius:6px;font-size:13px;box-sizing:border-box">
+      </div>
+      <div id="emailResult" style="margin-top:14px;font-size:13px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeEmailModal()">취소</button>
+      <button class="btn-primary" onclick="sendAlert()">📧 발송</button>
+    </div>
+  </div>
+</div>
+
 <!-- Order Modal -->
 <div class="modal-overlay" id="orderModal">
   <div class="modal-box">
@@ -633,6 +657,49 @@ function statusDot(status) {
   if(status==='진행중') return '<span class="dot dot-yellow"></span>';
   if(status==='대기중') return '<span class="dot dot-gray"></span>';
   return '';
+}
+
+// ─────────────────────────────────────────
+// EXCEL & EMAIL
+// ─────────────────────────────────────────
+function downloadExcel() {
+  window.location.href = '/api/export';
+}
+
+function openEmailModal() {
+  document.getElementById('emailResult').innerHTML = '';
+  document.getElementById('emailModal').style.display = 'block';
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').style.display = 'none';
+}
+
+async function sendAlert() {
+  const to = document.getElementById('emailTo').value.trim();
+  const resultEl = document.getElementById('emailResult');
+  if(!to) { resultEl.innerHTML = '<span style="color:var(--danger)">수신자 이메일을 입력해주세요.</span>'; return; }
+
+  resultEl.innerHTML = '<span style="color:var(--gray-600)">⏳ 발송 중...</span>';
+  try {
+    const res = await fetch('/api/alert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to })
+    });
+    const json = await res.json();
+    if(json.ok) {
+      if(json.sent) {
+        resultEl.innerHTML = `<span style="color:var(--success)">✅ ${json.sent}건 알림을 발송했습니다.<br><small>${json.alerts.join('<br>')}</small></span>`;
+      } else {
+        resultEl.innerHTML = `<span style="color:var(--success)">✅ ${json.message}</span>`;
+      }
+    } else {
+      resultEl.innerHTML = `<span style="color:var(--danger)">❌ ${json.error}</span>`;
+    }
+  } catch {
+    resultEl.innerHTML = '<span style="color:var(--danger)">❌ 서버 연결 실패. Flask 서버가 실행 중인지 확인해주세요.</span>';
+  }
 }
 
 // ─────────────────────────────────────────

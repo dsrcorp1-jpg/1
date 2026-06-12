@@ -988,17 +988,17 @@ function renderNego() {
     const savingPct = saving && n.offerPrice > 0 ? ((saving / n.offerPrice)*100).toFixed(1) : null;
     const ec = editMode ? 'editable-cell' : '';
     return `<tr>
-      <td class="fw-600">${o.id}</td>
-      <td>${o.product} <span class="chip">${o.grade}</span></td>
-      <td>${o.supplier}</td>
-      <td class="text-right">${o.quantity.toLocaleString()}</td>
-      <td class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.offerPrice','number')">${fmtPrice(n.offerPrice)}</td>
-      <td class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.counterPrice','number')">${fmtPrice(n.counterPrice)}</td>
-      <td class="text-right fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.contractPrice','number')">${fmtPrice(n.contractPrice)}</td>
-      <td class="text-right">${fmtPrice(n.marketRef)}</td>
-      <td class="text-right">${saving != null ? `<span class="${saving>0?'price-good':'price-bad'}">-$${saving} (${savingPct}%)</span>` : '—'}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.status','status')"><span class="stage-badge stage-${safeStage(o.stage)}">${o.negotiation.status}</span></td>
-      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+      <td data-label="오더번호" class="fw-600">${o.id}</td>
+      <td data-label="품목">${o.product} <span class="chip">${o.grade}</span></td>
+      <td data-label="공급사">${o.supplier}</td>
+      <td data-label="수량" class="text-right">${o.quantity.toLocaleString()}</td>
+      <td data-label="오퍼가" class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.offerPrice','number')">${fmtPrice(n.offerPrice)}</td>
+      <td data-label="카운터가" class="text-right ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.counterPrice','number')">${fmtPrice(n.counterPrice)}</td>
+      <td data-label="계약가" class="text-right fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.contractPrice','number')">${fmtPrice(n.contractPrice)}</td>
+      <td data-label="시장가" class="text-right">${fmtPrice(n.marketRef)}</td>
+      <td data-label="절감액" class="text-right">${saving != null ? `<span class="${saving>0?'price-good':'price-bad'}">-$${saving} (${savingPct}%)</span>` : '—'}</td>
+      <td data-label="협상상태" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'negotiation.status','status')"><span class="stage-badge stage-${safeStage(o.stage)}">${o.negotiation.status}</span></td>
+      <td data-label="액션" style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
     </tr>`;
   }).join('');
   document.getElementById('negoTableBody').innerHTML = rows;
@@ -1069,16 +1069,16 @@ function renderContract() {
   const rows = DATA.orders.map(o => {
     const c = o.contract;
     return `<tr>
-      <td class="fw-600">${c.contractNo || '<span class="empty-val">미정</span>'}</td>
-      <td>${o.product} <span class="chip">${o.grade}</span></td>
-      <td>${o.supplier}</td>
-      <td class="text-right">${o.quantity.toLocaleString()}</td>
-      <td class="text-right fw-600">${fmtPrice(o.negotiation.contractPrice)}</td>
-      <td>${c.paymentTerms || '<span class="empty-val">—</span>'}</td>
-      <td>${c.incoterms || '<span class="empty-val">—</span>'}</td>
-      <td>${c.deliveryMonth || '<span class="empty-val">—</span>'}</td>
-      <td>${fmtDate(c.signDate)}</td>
-      <td><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+      <td data-label="계약번호" class="fw-600">${c.contractNo || '<span class="empty-val">미정</span>'}</td>
+      <td data-label="품목">${o.product} <span class="chip">${o.grade}</span></td>
+      <td data-label="공급사">${o.supplier}</td>
+      <td data-label="수량" class="text-right">${o.quantity.toLocaleString()}</td>
+      <td data-label="계약가" class="text-right fw-600">${fmtPrice(o.negotiation.contractPrice)}</td>
+      <td data-label="결제조건">${c.paymentTerms || '<span class="empty-val">—</span>'}</td>
+      <td data-label="인도조건">${c.incoterms || '<span class="empty-val">—</span>'}</td>
+      <td data-label="납기월">${c.deliveryMonth || '<span class="empty-val">—</span>'}</td>
+      <td data-label="계약일">${fmtDate(c.signDate)}</td>
+      <td data-label="단계"><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
     </tr>`;
   }).join('');
   document.getElementById('contractTableBody').innerHTML = rows;
@@ -1133,18 +1133,18 @@ function renderShipment() {
     const ec = editMode ? 'editable-cell' : '';
     const di = DATA.orders.indexOf(o);
     return `<tr style="${dim}">
-      <td>${dTag}</td>
-      <td class="fw-600">${o.id}</td>
-      <td>${o.product}</td>
-      <td>${o.supplier}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.vessel','text')">${s.vessel || '<span class="empty-val">미정</span>'}</td>
-      <td style="font-size:12px" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.blNo','text')">${s.blNo || '<span class="empty-val">—</span>'}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfLoading','text')">${s.portOfLoading || '<span class="empty-val">—</span>'}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfDischarge','text')">${s.portOfDischarge || '<span class="empty-val">—</span>'}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.etd','date')">${fmtDate(s.etd)}</td>
-      <td class="fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.eta','date')">${fmtDate(s.eta)}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'stage','stage')"><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
-      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+      <td data-label="D-Day">${dTag}</td>
+      <td data-label="오더번호" class="fw-600">${o.id}</td>
+      <td data-label="품목">${o.product}</td>
+      <td data-label="공급사">${o.supplier}</td>
+      <td data-label="선박명" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.vessel','text')">${s.vessel || '<span class="empty-val">미정</span>'}</td>
+      <td data-label="B/L No." style="font-size:12px" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.blNo','text')">${s.blNo || '<span class="empty-val">—</span>'}</td>
+      <td data-label="선적항" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfLoading','text')">${s.portOfLoading || '<span class="empty-val">—</span>'}</td>
+      <td data-label="도착항" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.portOfDischarge','text')">${s.portOfDischarge || '<span class="empty-val">—</span>'}</td>
+      <td data-label="ETD" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.etd','date')">${fmtDate(s.etd)}</td>
+      <td data-label="ETA" class="fw-600 ${ec}" onclick="editCell(this,DATA.orders[${di}],'shipment.eta','date')">${fmtDate(s.eta)}</td>
+      <td data-label="단계" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'stage','stage')"><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+      <td data-label="액션" style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
     </tr>`;
   }).join('');
   document.getElementById('shipmentTableBody').innerHTML = rows;
@@ -1186,17 +1186,17 @@ function renderCustoms() {
     const ec = editMode ? 'editable-cell' : '';
     const di = DATA.orders.indexOf(o);
     return `<tr style="${rowBg}">
-      <td class="fw-600">${o.id}</td>
-      <td>${o.product}</td>
-      <td class="text-right">${o.quantity.toLocaleString()}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.arrivalDate','date')">${fmtDate(c.arrivalDate)}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.declarationDate','date')">${fmtDate(c.declarationDate)}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.clearanceDate','date')">${fmtDate(c.clearanceDate)}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.status','status')">${statusDot(c.status)}<span class="stage-badge ${cBadgeClass}">${c.status}</span></td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.status','status')">${statusDot(d.status)}<span class="stage-badge ${dBadgeClass}">${d.status}</span></td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.date','date')">${fmtDate(d.date)}</td>
-      <td class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.destination','text')">${d.destination || '<span class="empty-val">—</span>'}</td>
-      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
+      <td data-label="오더번호" class="fw-600">${o.id}</td>
+      <td data-label="품목">${o.product}</td>
+      <td data-label="수량" class="text-right">${o.quantity.toLocaleString()}</td>
+      <td data-label="입항일" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.arrivalDate','date')">${fmtDate(c.arrivalDate)}</td>
+      <td data-label="신고일" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.declarationDate','date')">${fmtDate(c.declarationDate)}</td>
+      <td data-label="통관완료일" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.clearanceDate','date')">${fmtDate(c.clearanceDate)}</td>
+      <td data-label="통관상태" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'customs.status','status')">${statusDot(c.status)}<span class="stage-badge ${cBadgeClass}">${c.status}</span></td>
+      <td data-label="배차상태" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.status','status')">${statusDot(d.status)}<span class="stage-badge ${dBadgeClass}">${d.status}</span></td>
+      <td data-label="배차일" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.date','date')">${fmtDate(d.date)}</td>
+      <td data-label="목적지" class="${ec}" onclick="editCell(this,DATA.orders[${di}],'dispatch.destination','text')">${d.destination || '<span class="empty-val">—</span>'}</td>
+      <td data-label="액션" style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${di})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${di})">🗑</button></td>
     </tr>`;
   }).join('');
   document.getElementById('customsTableBody').innerHTML = rows;
@@ -1309,16 +1309,16 @@ function renderInventory() {
     const diff = i.currentStock - i.safetyStock;
     const ec = editMode ? 'editable-cell' : '';
     return `<tr>
-      <td class="fw-600">${i.product}</td>
-      <td>${i.location}</td>
-      <td class="text-right fw-600 ${ec}" style="color:${i.currentStock<i.safetyStock?'var(--danger)':'inherit'}" onclick="editCell(this,DATA.inventory[${ii}],'currentStock','number')">${i.currentStock.toLocaleString()}</td>
-      <td class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'safetyStock','number')">${i.safetyStock.toLocaleString()}</td>
-      <td class="text-right ${ec}" style="color:var(--success)" onclick="editCell(this,DATA.inventory[${ii}],'incomingStock','number')">${i.incomingStock.toLocaleString()}</td>
-      <td class="text-right ${ec}" style="color:var(--warning)" onclick="editCell(this,DATA.inventory[${ii}],'outgoingPlan','number')">${i.outgoingPlan.toLocaleString()}</td>
-      <td class="text-right fw-600">${projected.toLocaleString()}</td>
-      <td class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'avgDailyUsage','number')">${i.avgDailyUsage}</td>
-      <td class="text-right">${doi}일</td>
-      <td class="text-right"><span class="${diff>=0?'price-good':'price-bad'}">${diff>=0?'+':''}${diff}MT</span></td>
+      <td data-label="품목" class="fw-600">${i.product}</td>
+      <td data-label="창고">${i.location}</td>
+      <td data-label="현재고" class="text-right fw-600 ${ec}" style="color:${i.currentStock<i.safetyStock?'var(--danger)':'inherit'}" onclick="editCell(this,DATA.inventory[${ii}],'currentStock','number')">${i.currentStock.toLocaleString()}</td>
+      <td data-label="안전재고" class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'safetyStock','number')">${i.safetyStock.toLocaleString()}</td>
+      <td data-label="입고예정" class="text-right ${ec}" style="color:var(--success)" onclick="editCell(this,DATA.inventory[${ii}],'incomingStock','number')">${i.incomingStock.toLocaleString()}</td>
+      <td data-label="출고예정" class="text-right ${ec}" style="color:var(--warning)" onclick="editCell(this,DATA.inventory[${ii}],'outgoingPlan','number')">${i.outgoingPlan.toLocaleString()}</td>
+      <td data-label="예상잔고" class="text-right fw-600">${projected.toLocaleString()}</td>
+      <td data-label="일평균사용" class="text-right ${ec}" onclick="editCell(this,DATA.inventory[${ii}],'avgDailyUsage','number')">${i.avgDailyUsage}</td>
+      <td data-label="재고일수" class="text-right">${doi}일</td>
+      <td data-label="안전재고대비" class="text-right"><span class="${diff>=0?'price-good':'price-bad'}">${diff>=0?'+':''}${diff}MT</span></td>
     </tr>`;
   }).join('');
   document.getElementById('invTableBody').innerHTML = rows;
@@ -1359,18 +1359,18 @@ function renderHistory() {
     const n = o.negotiation;
     const savingPct = n.contractPrice && n.offerPrice ? (((n.offerPrice - n.contractPrice) / n.offerPrice)*100).toFixed(1) : null;
     return `<tr>
-      <td class="fw-600">${o.id}</td>
-      <td>${o.product}</td>
-      <td><span class="chip">${o.grade}</span></td>
-      <td>${o.supplier}</td>
-      <td>${o.origin}</td>
-      <td class="text-right">${o.quantity.toLocaleString()}</td>
-      <td class="text-right">${fmtPrice(n.contractPrice)}</td>
-      <td class="text-right">${fmtPrice(n.marketRef)}</td>
-      <td class="text-right">${savingPct != null ? `<span class="price-good">-${savingPct}%</span>` : '—'}</td>
-      <td>${fmtDate(o.contract.signDate)}</td>
-      <td><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
-      <td style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${DATA.orders.indexOf(o)})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${DATA.orders.indexOf(o)})">🗑</button></td>
+      <td data-label="오더번호" class="fw-600">${o.id}</td>
+      <td data-label="품목">${o.product}</td>
+      <td data-label="등급"><span class="chip">${o.grade}</span></td>
+      <td data-label="공급사">${o.supplier}</td>
+      <td data-label="원산지">${o.origin}</td>
+      <td data-label="수량" class="text-right">${o.quantity.toLocaleString()}</td>
+      <td data-label="계약가" class="text-right">${fmtPrice(n.contractPrice)}</td>
+      <td data-label="시장가" class="text-right">${fmtPrice(n.marketRef)}</td>
+      <td data-label="절감률" class="text-right">${savingPct != null ? `<span class="price-good">-${savingPct}%</span>` : '—'}</td>
+      <td data-label="계약일">${fmtDate(o.contract.signDate)}</td>
+      <td data-label="단계"><span class="stage-badge stage-${safeStage(o.stage)}">${STAGE_ICONS[safeStage(o.stage)]} ${o.stage}</span></td>
+      <td data-label="액션" style="white-space:nowrap"><button class="action-btn action-btn-edit" onclick="openOrderModal(${DATA.orders.indexOf(o)})">✏️</button> <button class="action-btn action-btn-del" onclick="deleteOrder(${DATA.orders.indexOf(o)})">🗑</button></td>
     </tr>`;
   }).join('');
   document.getElementById('historyTableBody').innerHTML = rows;

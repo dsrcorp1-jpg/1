@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request, send_from_directory, send_file
+from flask_cors import CORS
 import json, os, smtplib, io
 from dotenv import load_dotenv
 load_dotenv()
@@ -9,18 +10,27 @@ from email import encoders
 from datetime import date, datetime
 
 app = Flask(__name__)
+CORS(app)
 BASE = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE, 'data', 'data.json')
 
 
 def load_data():
-    with open(DATA_FILE, 'r', encoding='utf-8-sig') as f:
-        return json.load(f)
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8-sig') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {'orders': [], 'inventory': [], 'marketPrices': []}
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f'데이터 파일 파싱 오류: {e}')
 
 
 def save_data(data):
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except OSError as e:
+        raise RuntimeError(f'데이터 저장 실패: {e}')
 
 
 # ── Static files ──────────────────────────────────────
@@ -36,7 +46,10 @@ def static_files(path):
 # ── API: data ─────────────────────────────────────────
 @app.route('/api/data', methods=['GET'])
 def api_get():
-    return jsonify(load_data())
+    try:
+        return jsonify(load_data())
+    except RuntimeError as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
 
 VALID_STAGES   = {'네고중','계약완료','발주대기','선적완료','항해중','통관중','배차완료'}
 VALID_NEGO_ST  = {'진행중','완료'}
@@ -68,7 +81,10 @@ def api_save():
     errors = validate_orders(data.get('orders', []))
     if errors:
         return jsonify({'ok': False, 'error': '검증 실패', 'details': errors}), 400
-    save_data(data)
+    try:
+        save_data(data)
+    except RuntimeError as e:
+        return jsonify({'ok': False, 'error': str(e)}), 500
     return jsonify({'ok': True})
 
 

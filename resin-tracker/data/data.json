@@ -1,4 +1,4 @@
-﻿{
+{
   "lastUpdated": "2026-06-12",
   "orders": [
     {
@@ -225,6 +225,141 @@
         "date": "",
         "destination": ""
       }
+    },
+    {
+      "id": "ORD-2026-006",
+      "product": "PP Homo",
+      "grade": "H350F",
+      "supplier": "롯데케미칼",
+      "origin": "한국",
+      "quantity": 250,
+      "unit": "MT",
+      "stage": "발주대기",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1025,
+        "counterPrice": 1005,
+        "contractPrice": 1015,
+        "currency": "USD/MT",
+        "marketRef": 1010,
+        "date": "2026-06-03"
+      },
+      "contract": {
+        "contractNo": "C-2026-PP-003",
+        "signDate": "2026-06-05",
+        "paymentTerms": "T/T 30days",
+        "incoterms": "EXW Yeosu",
+        "deliveryMonth": "2026-07"
+      },
+      "shipment": {
+        "vessel": "",
+        "blNo": "",
+        "etd": "2026-07-05",
+        "eta": "2026-07-07",
+        "portOfLoading": "여수",
+        "portOfDischarge": "울산"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": "울산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-007",
+      "product": "HDPE",
+      "grade": "HB131R",
+      "supplier": "SK지오센트릭",
+      "origin": "한국",
+      "quantity": 180,
+      "unit": "MT",
+      "stage": "선적완료",
+      "negotiation": {
+        "status": "완료",
+        "offerPrice": 1000,
+        "counterPrice": 978,
+        "contractPrice": 988,
+        "currency": "USD/MT",
+        "marketRef": 990,
+        "date": "2026-05-10"
+      },
+      "contract": {
+        "contractNo": "C-2026-HDPE-002",
+        "signDate": "2026-05-14",
+        "paymentTerms": "T/T 30days",
+        "incoterms": "CFR Busan",
+        "deliveryMonth": "2026-06"
+      },
+      "shipment": {
+        "vessel": "PANCON VICTORY",
+        "blNo": "PNVB202606007",
+        "etd": "2026-06-08",
+        "eta": "2026-06-14",
+        "portOfLoading": "울산",
+        "portOfDischarge": "부산"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": "부산 공장"
+      }
+    },
+    {
+      "id": "ORD-2026-008",
+      "product": "PP Copo",
+      "grade": "EP548R",
+      "supplier": "GS칼텍스",
+      "origin": "한국",
+      "quantity": 300,
+      "unit": "MT",
+      "stage": "네고중",
+      "negotiation": {
+        "status": "진행중",
+        "offerPrice": 1095,
+        "counterPrice": 1065,
+        "contractPrice": null,
+        "currency": "USD/MT",
+        "marketRef": 1070,
+        "date": "2026-06-10"
+      },
+      "contract": {
+        "contractNo": "",
+        "signDate": "",
+        "paymentTerms": "",
+        "incoterms": "EXW Yeosu",
+        "deliveryMonth": "2026-08"
+      },
+      "shipment": {
+        "vessel": "",
+        "blNo": "",
+        "etd": "",
+        "eta": "",
+        "portOfLoading": "여수",
+        "portOfDischarge": "부산"
+      },
+      "customs": {
+        "arrivalDate": "",
+        "declarationDate": "",
+        "clearanceDate": "",
+        "status": "대기중"
+      },
+      "dispatch": {
+        "status": "대기중",
+        "date": "",
+        "destination": ""
+      }
     }
   ],
   "inventory": [
@@ -280,11 +415,23 @@
     }
   ],
   "marketPrices": [
-    { "month": "2026-01", "ppHomo": 980, "ppCopo": 1040, "hdpe": 960, "ldpe": 1030, "lldpe": 945, "naphtha": 610, "brent": 72 },
-    { "month": "2026-02", "ppHomo": 990, "ppCopo": 1050, "hdpe": 970, "ldpe": 1040, "lldpe": 950, "naphtha": 620, "brent": 73 },
-    { "month": "2026-03", "ppHomo": 1000, "ppCopo": 1055, "hdpe": 975, "ldpe": 1045, "lldpe": 955, "naphtha": 625, "brent": 73 },
-    { "month": "2026-04", "ppHomo": 1005, "ppCopo": 1060, "hdpe": 980, "ldpe": 1050, "lldpe": 960, "naphtha": 628, "brent": 74 },
-    { "month": "2026-05", "ppHomo": 1010, "ppCopo": 1065, "hdpe": 985, "ldpe": 1055, "lldpe": 965, "naphtha": 630, "brent": 74 },
-    { "month": "2026-06", "ppHomo": 1200, "ppCopo": 1070, "hdpe": 990, "ldpe": 1060, "lldpe": 970, "naphtha": 630, "brent": 74 }
+    { "month": "2025-01", "ppHomo": 940, "ppCopo": 995, "hdpe": 920, "ldpe": 990, "lldpe": 905, "naphtha": 575, "brent": 68, "usdKrw": 1340 },
+    { "month": "2025-02", "ppHomo": 945, "ppCopo": 1000, "hdpe": 925, "ldpe": 995, "lldpe": 910, "naphtha": 580, "brent": 68, "usdKrw": 1345 },
+    { "month": "2025-03", "ppHomo": 950, "ppCopo": 1005, "hdpe": 930, "ldpe": 1000, "lldpe": 915, "naphtha": 585, "brent": 69, "usdKrw": 1350 },
+    { "month": "2025-04", "ppHomo": 955, "ppCopo": 1010, "hdpe": 935, "ldpe": 1005, "lldpe": 920, "naphtha": 588, "brent": 70, "usdKrw": 1355 },
+    { "month": "2025-05", "ppHomo": 960, "ppCopo": 1015, "hdpe": 940, "ldpe": 1010, "lldpe": 925, "naphtha": 590, "brent": 70, "usdKrw": 1358 },
+    { "month": "2025-06", "ppHomo": 958, "ppCopo": 1012, "hdpe": 938, "ldpe": 1008, "lldpe": 923, "naphtha": 588, "brent": 70, "usdKrw": 1360 },
+    { "month": "2025-07", "ppHomo": 962, "ppCopo": 1018, "hdpe": 942, "ldpe": 1012, "lldpe": 927, "naphtha": 592, "brent": 71, "usdKrw": 1362 },
+    { "month": "2025-08", "ppHomo": 968, "ppCopo": 1025, "hdpe": 948, "ldpe": 1018, "lldpe": 932, "naphtha": 595, "brent": 71, "usdKrw": 1365 },
+    { "month": "2025-09", "ppHomo": 972, "ppCopo": 1030, "hdpe": 952, "ldpe": 1022, "lldpe": 936, "naphtha": 598, "brent": 72, "usdKrw": 1368 },
+    { "month": "2025-10", "ppHomo": 975, "ppCopo": 1033, "hdpe": 955, "ldpe": 1025, "lldpe": 940, "naphtha": 600, "brent": 72, "usdKrw": 1370 },
+    { "month": "2025-11", "ppHomo": 978, "ppCopo": 1037, "hdpe": 958, "ldpe": 1028, "lldpe": 943, "naphtha": 605, "brent": 73, "usdKrw": 1375 },
+    { "month": "2025-12", "ppHomo": 982, "ppCopo": 1040, "hdpe": 962, "ldpe": 1032, "lldpe": 946, "naphtha": 608, "brent": 73, "usdKrw": 1378 },
+    { "month": "2026-01", "ppHomo": 980, "ppCopo": 1040, "hdpe": 960, "ldpe": 1030, "lldpe": 945, "naphtha": 610, "brent": 72, "usdKrw": 1375 },
+    { "month": "2026-02", "ppHomo": 990, "ppCopo": 1050, "hdpe": 970, "ldpe": 1040, "lldpe": 950, "naphtha": 620, "brent": 73, "usdKrw": 1378 },
+    { "month": "2026-03", "ppHomo": 1000, "ppCopo": 1055, "hdpe": 975, "ldpe": 1045, "lldpe": 955, "naphtha": 625, "brent": 73, "usdKrw": 1380 },
+    { "month": "2026-04", "ppHomo": 1005, "ppCopo": 1060, "hdpe": 980, "ldpe": 1050, "lldpe": 960, "naphtha": 628, "brent": 74, "usdKrw": 1380 },
+    { "month": "2026-05", "ppHomo": 1010, "ppCopo": 1065, "hdpe": 985, "ldpe": 1055, "lldpe": 965, "naphtha": 630, "brent": 74, "usdKrw": 1382 },
+    { "month": "2026-06", "ppHomo": 1015, "ppCopo": 1070, "hdpe": 990, "ldpe": 1060, "lldpe": 970, "naphtha": 630, "brent": 74, "usdKrw": 1380 }
   ]
 }
